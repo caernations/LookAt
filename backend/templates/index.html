@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tubes Bentar</title>
+    <link href="styles.css" rel="stylesheet"/>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Reverse Image Search</h1>
+        </header>
+        <div class="upload">
+            <section class="kiri">
+                <p><img id="output" width="632" height="270"/></p>
+            </section>
+            <section class="kanan">
+                <input id="inp" type="file" accept="image/*" onchange="loadFile(event)">
+                <script>
+                    var loadFile = function(event) {
+                        var image = document.getElementById('output');
+                        image.src=URL.createObjectURL(event.target.files[0]);
+                    };
+                </script>
+                <section>
+                    <label><input id="color" type="radio" name="color-texture" value="color"> color</label>
+                    <label><input id="texture" type="radio" name="color-texture" value="texture"> texture</label>
+                    <button type="submit">submit</button>
+                </section>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
