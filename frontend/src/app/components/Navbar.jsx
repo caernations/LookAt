@@ -34,7 +34,7 @@ const Navbar = () => {
           href={"/"}
           className="text-2xl md:text-5xl text-white font-semibold"
         >
-            <HomeIcon className="h-10 w-10"/>
+            <HomeIcon className="ml-8 h-10 w-10"/>
         </Link>
         <div className="mobile-menu block md:hidden">
           {!navbarOpen ? (

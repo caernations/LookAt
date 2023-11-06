@@ -25,7 +25,7 @@ const ImageInput = () => {
 
   return (
     <section>
-      <div className="mx-auto bg-opacity-50 mt-20 grid grid-cols-1 md:grid-cols-5 gap-5 bg-[#373737] p-4 rounded-3xl w-full md:w-[900px] border-8 border-opacity-10 border-[#373737]">
+      <div className="mx-auto bg-opacity-50 mt-16 grid grid-cols-1 md:grid-cols-5 gap-5 bg-[#373737] p-4 rounded-3xl w-full md:w-[900px] border-8 border-opacity-10 border-[#373737]">
         <div className="md:col-span-3 bg-[#EEEEEE] h-[300px] md:h-[300px] w-full flex items-center justify-center relative">
           {selectedImage ? (
             <>

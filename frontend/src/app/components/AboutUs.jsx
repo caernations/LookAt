@@ -28,7 +28,7 @@ const AboutUs = () => {
   return (
     <section id="about-us">
       <div className="py-4">
-        <h1 className="mt-20 text-center text-xl lg:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-stone-950 via-stone-700 to-stone-500 font-extrabold">
+        <h1 className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
           About Us
         </h1>
       </div>
