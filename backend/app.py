@@ -33,7 +33,8 @@ def image():
     if request.method == "POST":
         if request.files:
             image = request.files["image"]
-            image.save(os.path.join(app.config["UPLOAD_FOLDER_IMAGE"], image.filename))
+            filename = "image.jpg"
+            image.save(os.path.join(app.config["UPLOAD_FOLDER_IMAGE"], filename))
             return redirect("/")
 
 
@@ -42,10 +43,12 @@ def dataset():
     if request.method == "POST":
         if request.files:
             dataset = request.files.getlist("dataset")
+            i = 1
             for file in dataset:
                 file.save(
-                    os.path.join(app.config["UPLOAD_FOLDER_DATASET"], file.filename)
+                    os.path.join(app.config["UPLOAD_FOLDER_DATASET"], f"data{i}.jpg")
                 )
+                i += 1
             return redirect("/")
 
 
