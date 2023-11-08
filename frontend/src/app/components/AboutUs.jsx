@@ -29,7 +29,7 @@ const AboutUs = () => {
     <section id="about-us">
       <div className="py-4">
         <h1 className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
-          About Us
+          ABOUT US
         </h1>
       </div>
       <div className="flex-col border-l-4 border-black">
