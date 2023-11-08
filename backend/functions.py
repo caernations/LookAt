@@ -123,13 +123,28 @@ def histogramHSV(image):
     return histH, histS, histV
 
 
-def cosineSimilarity(hist1, hist2):
-    dot_product = sum(a * b for a, b in zip(hist1, hist2))
-    magnitude1 = math.sqrt(sum(a**2 for a in hist1))
-    magnitude2 = math.sqrt(sum(b**2 for b in hist2))
-    if magnitude1 == 0 or magnitude2 == 0:
-        return 0
-    return dot_product / (magnitude1 * magnitude2)
+def cosineSimilarity(image1, image2):
+    h1, s1, v1 = histogramHSV(image1)
+    h2, s2, v2 = histogramHSV(image2)
+
+    dotProductH = sum(a * b for a, b in zip(h1, h2))
+    magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
+    magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
+    resultH = dotProductH / (magnitudeH1 * magnitudeH2)
+
+    dotProductS = sum(a * b for a, b in zip(s1, s2))
+    magnitudeS1 = math.sqrt(sum(a**2 for a in s1))
+    magnitudeS2 = math.sqrt(sum(b**2 for b in s2))
+    resultS = dotProductS / (magnitudeS1 * magnitudeS2)
+
+    dotProductV = sum(a * b for a, b in zip(v1, v2))
+    magnitudeV1 = math.sqrt(sum(a**2 for a in v1))
+    magnitudeV2 = math.sqrt(sum(b**2 for b in v2))
+    resultV = dotProductV / (magnitudeV1 * magnitudeV2)
+
+    overallResult = (resultH + resultS + resultV) / 3
+
+    return overallResult
 
 
 if __name__ == "__main__":
