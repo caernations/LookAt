@@ -96,17 +96,17 @@ def convertRGBToHSV(r, g, b):
 
     return h, s, v
 
-def histogramHSV(h, s, v):
+def histogramHSV(image):
     histH = [0] * 180
     histS = [0] * 256
     histV = [0] * 256
 
-    # bikinin loop buat tiap pixel ya ji
-    for pixel in pixels:
-        h, s, v = pixel
-        histH[h] += 1
-        histS[s] += 1
-        histV[v] += 1
+    for i in range(len(image)):
+        for j in range(len(image[0])):
+            h, s, v = image[i][j]
+            histH[h] += 1
+            histS[s] += 1
+            histV[v] += 1
 
     return histH, histS, histV
 
