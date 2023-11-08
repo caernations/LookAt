@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, redirect, render_template
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 UPLOAD_FOLDER_IMAGE = "image"
 UPLOAD_FOLDER_DATASET = "dataset"
 app.config["UPLOAD_FOLDER_IMAGE"] = UPLOAD_FOLDER_IMAGE
