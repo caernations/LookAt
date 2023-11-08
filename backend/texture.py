@@ -47,13 +47,29 @@ def GLCM(image):
             idxJ = image[i][j + 1]
             frameworkMatrix[idxI][idxJ] += 1
     transposeFramework = transposeMatrix(frameworkMatrix)
-    
-    for i in range (256):
-        for j in range (256):
+
+    for i in range(256):
+        for j in range(256):
             frameworkMatrix[i][j] += transposeFramework[i][j]
+
+    glcm = normaliseSymmetricMatrix(frameworkMatrix)
+    return glcm
+
 
 def transposeMatrix(matrix):
     return [list(i) for i in zip(*matrix)]
+
+
+def sumElmtMatrix(matrix):
+    sum = 0
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            sum += matrix[i][j]
+    return sum
+
+
+def normaliseSymmetricMatrix(matrix):
+    return [[val / sum(matrix) for val in row] for row in matrix]
 
 
 if __name__ == "__main__":
