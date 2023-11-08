@@ -40,15 +40,19 @@ def main():
 def GLCM(image):
     width, height = image.size
     frameworkMatrix = [[0 for _ in range(256)] for _ in range(256)]
-    # 0 derajat
+
     for i in range(width):
         for j in range(height - 1):
             idxI = image[i][j]
             idxJ = image[i][j + 1]
             frameworkMatrix[idxI][idxJ] += 1
+    transposeFramework = transposeMatrix(frameworkMatrix)
+    
+    for i in range (256):
+        for j in range (256):
+            frameworkMatrix[i][j] += transposeFramework[i][j]
 
-
-def transpose_matrix(matrix):
+def transposeMatrix(matrix):
     return [list(i) for i in zip(*matrix)]
 
 
