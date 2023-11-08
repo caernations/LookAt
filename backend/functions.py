@@ -53,6 +53,17 @@ def main():
     # Kalo mau akses foto image ada di pixelMatrix
     # fyi (semua foto sudah diubah ke HSV)
 
+    # Bikin histogram
+    # Image
+    histH, histS, histV = histogramHSV(pixelMatrix)
+    # Dataset
+    histDatasets = [None for _ in range(len(listDatasets))]
+    for i in range(len(listDatasets)):
+        histDatasets[i] = histogramHSV(listDatasets[i])
+
+    # listResultColor = [None for _ in range(len(listDatasets))]
+    # for i in range(len(listDatasets)):
+
 
 def compareImage(pixelMatriksImage, pixelMatriksDataset):
     if (
@@ -96,6 +107,7 @@ def convertRGBToHSV(r, g, b):
 
     return h, s, v
 
+
 def histogramHSV(image):
     histH = [0] * 180
     histS = [0] * 256
@@ -110,7 +122,8 @@ def histogramHSV(image):
 
     return histH, histS, histV
 
-def cosine_similarity(hist1, hist2):
+
+def cosineSimilarity(hist1, hist2):
     dot_product = sum(a * b for a, b in zip(hist1, hist2))
     magnitude1 = math.sqrt(sum(a**2 for a in hist1))
     magnitude2 = math.sqrt(sum(b**2 for b in hist2))
