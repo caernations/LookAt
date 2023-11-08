@@ -38,7 +38,7 @@ const ImageInput = () => {
               </button>
             </>
           ) : (
-            <PhotoIcon className="h-20" />
+            <PhotoIcon onClick={handleImageUpload} className="h-20 cursor-pointer" />
           )}
         </div>
         <div className="md:col-span-2 bg-[#EEEEEE] h-[300px] md:h-[300px] w-full flex flex-col items-center justify-center">
