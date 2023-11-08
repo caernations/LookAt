@@ -12,7 +12,7 @@ Aktivasi venv
 
 ```
 source ./venv/Scripts/activate  # Windows
-source venv/bin/activate        # WSL / Linux
+source venv/bin/activate        # WSL / Linux / Mac
 ```
 
 Deaktivasi venv
