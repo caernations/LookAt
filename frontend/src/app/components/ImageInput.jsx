@@ -5,6 +5,7 @@ import { PhotoIcon } from "@heroicons/react/24/solid";
 const ImageInput = () => {
   const fileInputRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleImageUpload = () => {
     fileInputRef.current.click();
@@ -23,9 +24,39 @@ const ImageInput = () => {
     setSelectedImage(null);
   };
 
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+    }
+  };
+
   return (
     <section>
-      <div className="mx-auto bg-opacity-50 mt-16 grid grid-cols-1 md:grid-cols-5 gap-5 bg-[#373737] p-4 rounded-3xl w-full md:w-[900px] border-8 border-opacity-10 border-[#373737]">
+      <div
+        className={`mx-auto bg-opacity-50 mt-16 grid grid-cols-1 md:grid-cols-5 gap-5 bg-[#373737] p-4 rounded-3xl w-full md:w-[900px] border-8 border-opacity-10 border-[#373737] ${
+          isDragging ? "border-blue-600" : ""
+        }`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
+      >
         <div className="md:col-span-3 bg-[#EEEEEE] h-[300px] md:h-[300px] w-full flex items-center justify-center relative">
           {selectedImage ? (
             <>
