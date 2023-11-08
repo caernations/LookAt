@@ -1,4 +1,5 @@
 from PIL import Image
+import math
 import os
 
 
@@ -94,6 +95,28 @@ def convertRGBToHSV(r, g, b):
         h += 360
 
     return h, s, v
+
+def histogramHSV(h, s, v):
+    histH = [0] * 180
+    histS = [0] * 256
+    histV = [0] * 256
+
+    # bikinin loop buat tiap pixel ya ji
+    for pixel in pixels:
+        h, s, v = pixel
+        histH[h] += 1
+        histS[s] += 1
+        histV[v] += 1
+
+    return histH, histS, histV
+
+def cosine_similarity(hist1, hist2):
+    dot_product = sum(a * b for a, b in zip(hist1, hist2))
+    magnitude1 = math.sqrt(sum(a**2 for a in hist1))
+    magnitude2 = math.sqrt(sum(b**2 for b in hist2))
+    if magnitude1 == 0 or magnitude2 == 0:
+        return 0
+    return dot_product / (magnitude1 * magnitude2)
 
 
 if __name__ == "__main__":
