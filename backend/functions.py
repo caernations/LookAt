@@ -1,19 +1,26 @@
 from PIL import Image
 
-imagePATH = "./image/image.jpg"  # Path to image
 
-image = Image.open(imagePATH)  # Image variable
+def main():
+    imagePATH = "./image/image.jpg"  # Path to image
 
-if image.mode != "RGB":  # Check if image is RGB
-    image = image.convert("RGB")
-width, height = image.size
+    image = Image.open(imagePATH)  # Image variable
+
+    if image.mode != "RGB":  # Check if image is RGB
+        image = image.convert("RGB")
+    width, height = image.size
+
+    pixelMatrix = list(image.getdata())
+    pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
+
+    for i in range(height):
+        for j in range(width):
+            r, g, b = pixelMatrix[i][j]
+            h, s, v = convertRGBToHSV(r, g, b)
+            pixelMatrix[i][j] = (h, s, v)
 
 
-pixelMatrix = list(image.getdata())
-pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
-
-
-def rgb_to_hsv(r, g, b):
+def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
     max_value = max(r, g, b)
     min_value = min(r, g, b)
@@ -39,3 +46,7 @@ def rgb_to_hsv(r, g, b):
         h += 360
 
     return h, s, v
+
+
+if __name__ == "__main__":
+    main()
