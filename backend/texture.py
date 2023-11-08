@@ -36,6 +36,17 @@ def main():
             pixelMatrix[n : n + width] for n in range(0, len(pixelMatrix), width)
         ]
 
+def GLCM(image):
+    width, height = image.size
+    frameworkMatrix = [[0 for _ in range (256)] for _ in range (256)]
+    # 0 derajat
+    for i in range (width):
+        for j in range (height-1):
+            idxI = image[i][j]
+            idxJ = image[i][j+1]
+            frameworkMatrix[idxI][idxJ] += 1
+    
+    # bikinin transpose disini ji
 
 if __name__ == "__main__":
     main()
