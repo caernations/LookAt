@@ -55,29 +55,19 @@ def main():
 
     # Bikin histogram
     # Image
-    histH, histS, histV = histogramHSV(pixelMatrix)
+    (histH, histS, histV) = histogramHSV(pixelMatrix)
     # Dataset
     histDatasets = [None for _ in range(len(listDatasets))]
     for i in range(len(listDatasets)):
         histDatasets[i] = histogramHSV(listDatasets[i])
 
-    # listResultColor = [None for _ in range(len(listDatasets))]
-    # for i in range(len(listDatasets)):
+    listResultColor = [None for _ in range(len(listDatasets))]
+    for i in range(len(listDatasets)):
+        listResultColor[i] = round(
+            cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
+        )
 
-
-def compareImage(pixelMatriksImage, pixelMatriksDataset):
-    if (
-        len(pixelMatriksImage)
-        != len(pixelMatriksDataset) | len(pixelMatriksImage[0])
-        != len(pixelMatriksDataset[0])
-    ):
-        return False
-    else:
-        for i in range(len(pixelMatriksImage)):
-            for j in range(len(pixelMatriksImage[0])):
-                if pixelMatriksImage[i][j] != pixelMatriksDataset[i][j]:
-                    return False
-        return True
+    print(listResultColor)
 
 
 def convertRGBToHSV(r, g, b):
@@ -105,27 +95,30 @@ def convertRGBToHSV(r, g, b):
     if h < 0:
         h += 360
 
-    return h, s, v
+    return (h, s, v)
 
 
 def histogramHSV(image):
-    histH = [0] * 180
-    histS = [0] * 256
-    histV = [0] * 256
+    histH = [0 for _ in range(361)]
+    histS = [0 for _ in range(256)]
+    histV = [0 for _ in range(256)]
 
     for i in range(len(image)):
         for j in range(len(image[0])):
             h, s, v = image[i][j]
+            h = round(h)
+            s = round(s)
+            v = round(v)
             histH[h] += 1
             histS[s] += 1
             histV[v] += 1
 
-    return histH, histS, histV
+    return (histH, histS, histV)
 
 
 def cosineSimilarity(image1, image2):
-    h1, s1, v1 = histogramHSV(image1)
-    h2, s2, v2 = histogramHSV(image2)
+    h1, s1, v1 = image1
+    h2, s2, v2 = image2
 
     dotProductH = sum(a * b for a, b in zip(h1, h2))
     magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
