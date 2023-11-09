@@ -60,7 +60,7 @@ def metric(image):
     homogeneity = 0
     entropy = 0
     glcm = GLCM(image)
-    for i in range(256):
+    for i in range(255):
         for j in range(255):
             contrast += (glcm[i][j] * ((i-j) ** 2))
             homogeneity += (glcm[i][j]) / (1 + ((i-j) ** 2))
