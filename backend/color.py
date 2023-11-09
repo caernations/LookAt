@@ -3,7 +3,7 @@ import math
 import os
 
 
-def main():
+def color():
     imagePATH = "./image/image.jpg"  # Path to image (directly to image.jpg)
     datasetPATH = "./dataset"  # Path to dataset folder
     datasetFiles = os.listdir(datasetPATH)
@@ -67,7 +67,7 @@ def main():
             cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
         )
 
-    print(listResultColor)
+    return listResultColor
 
 
 def convertRGBToHSV(r, g, b):
@@ -141,4 +141,4 @@ def cosineSimilarity(image1, image2):
 
 
 if __name__ == "__main__":
-    main()
+    color()

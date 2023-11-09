@@ -3,7 +3,7 @@ import math
 import os
 
 
-def main():
+def texture():
     imagePATH = "./image/image.jpg"  # Path to image (directly to image.jpg)
     datasetPATH = "./dataset"  # Path to dataset folder
     datasetFiles = os.listdir(datasetPATH)
@@ -36,9 +36,11 @@ def main():
 
     listTextureResult = [None for _ in range(len(listDatasets))]
     for i in range(len(listDatasets)):
-        listTextureResult[i] = cosineSimilarityTexture(pixelMatrix, listDatasets[i])
+        listTextureResult[i] = round(
+            cosineSimilarityTexture(pixelMatrix, listDatasets[i]) * 100, 3
+        )
 
-    print(listTextureResult)
+    return listTextureResult
 
 
 def GLCM(image):
@@ -116,4 +118,4 @@ def normaliseSymmetricMatrix(matrix):
 
 
 if __name__ == "__main__":
-    main()
+    texture()
