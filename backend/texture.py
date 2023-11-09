@@ -66,19 +66,23 @@ def GLCM(image):
 def metric(image):
     contrast = 0
     homogeneity = 0
-    entropy = 0
+    dissimilarity = 0
+    asm = 0
+    energy = 0
     glcm = GLCM(image)
     for i in range(255):
         for j in range(255):
             contrast += glcm[i][j] * ((i - j) ** 2)
             homogeneity += (glcm[i][j]) / (1 + ((i - j) ** 2))
-            entropy += (glcm[i][j]) * math.log10(glcm[i][j])
-    return contrast, homogeneity, -entropy
+            dissimilarity += (glcm[i][j] * abs((i-j)))
+            asm += ((glcm[i][j]) ** 2)
+    energy = math.sqrt(asm)
+    return contrast, homogeneity, dissimilarity, asm, energy
 
 
 def cosineSimilarityTexture(image1, image2):
-    c1, h1, e1 = metric(image1)
-    c2, h2, e2 = metric(image2)
+    c1, h1, d1, a1, e1 = metric(image1)
+    c2, h2, d2, a2, e2 = metric(image2)
 
     dotProductC = sum(a * b for a, b in zip(c1, c2))
     magnitudeC1 = math.sqrt(sum(a**2 for a in c1))
@@ -90,12 +94,22 @@ def cosineSimilarityTexture(image1, image2):
     magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
     resultH = dotProductH / (magnitudeH1 * magnitudeH2)
 
+    dotProductD = sum(a * b for a, b in zip(d1, d2))
+    magnitudeD1 = math.sqrt(sum(a**2 for a in d1))
+    magnitudeD2 = math.sqrt(sum(b**2 for b in d2))
+    resultD = dotProductD / (magnitudeD1 * magnitudeD2)
+
+    dotProductA = sum(a * b for a, b in zip(a1, a2))
+    magnitudeA1 = math.sqrt(sum(a**2 for a in a1))
+    magnitudeA2 = math.sqrt(sum(b**2 for b in a2))
+    resultA = dotProductA / (magnitudeA1 * magnitudeA2)
+
     dotProductE = sum(a * b for a, b in zip(e1, e2))
     magnitudeE1 = math.sqrt(sum(a**2 for a in e1))
     magnitudeE2 = math.sqrt(sum(b**2 for b in e2))
     resultE = dotProductE / (magnitudeE1 * magnitudeE2)
 
-    overallResult = (resultC + resultH + resultE) / 3
+    overallResult = (resultC + resultH + resultD + resultA + resultE) / 5
 
     return overallResult
 
