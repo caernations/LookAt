@@ -36,13 +36,20 @@ def main():
             pixelMatrix[n : n + width] for n in range(0, len(pixelMatrix), width)
         ]
 
+        listTextureResult = [None for _ in range(len(listDatasets))]
+        for i in range(len(listDatasets)):
+            listTextureResult[i] = cosineSimilarityTexture(pixelMatrix, listDatasets[i])
+
+        print(listTextureResult)
+
 
 def GLCM(image):
-    width, height = image.size
+    height = len(image)
+    width = len(image[0])
     frameworkMatrix = [[0 for _ in range(256)] for _ in range(256)]
 
-    for i in range(width):
-        for j in range(height - 1):
+    for i in range(height):
+        for j in range(width - 1):
             idxI = image[i][j]
             idxJ = image[i][j + 1]
             frameworkMatrix[idxI][idxJ] += 1
@@ -55,6 +62,7 @@ def GLCM(image):
     glcm = normaliseSymmetricMatrix(frameworkMatrix)
     return glcm
 
+
 def metric(image):
     contrast = 0
     homogeneity = 0
@@ -62,10 +70,11 @@ def metric(image):
     glcm = GLCM(image)
     for i in range(255):
         for j in range(255):
-            contrast += (glcm[i][j] * ((i-j) ** 2))
-            homogeneity += (glcm[i][j]) / (1 + ((i-j) ** 2))
-            entropy += ((glcm[i][j]) * math.log10(glcm[i][j]))
+            contrast += glcm[i][j] * ((i - j) ** 2)
+            homogeneity += (glcm[i][j]) / (1 + ((i - j) ** 2))
+            entropy += (glcm[i][j]) * math.log10(glcm[i][j])
     return contrast, homogeneity, -entropy
+
 
 def cosineSimilarityTexture(image1, image2):
     c1, h1, e1 = metric(image1)
@@ -84,11 +93,12 @@ def cosineSimilarityTexture(image1, image2):
     dotProductE = sum(a * b for a, b in zip(e1, e2))
     magnitudeE1 = math.sqrt(sum(a**2 for a in e1))
     magnitudeE2 = math.sqrt(sum(b**2 for b in e2))
-    resultE= dotProductE / (magnitudeE1 * magnitudeE2)
+    resultE = dotProductE / (magnitudeE1 * magnitudeE2)
 
     overallResult = (resultC + resultH + resultE) / 3
 
     return overallResult
+
 
 def transposeMatrix(matrix):
     return [list(i) for i in zip(*matrix)]
@@ -103,7 +113,11 @@ def sumElmtMatrix(matrix):
 
 
 def normaliseSymmetricMatrix(matrix):
-    return [[val / sum(matrix) for val in row] for row in matrix]
+    sum = sumElmtMatrix(matrix)
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            matrix[i][j] /= sum
+    return matrix
 
 
 if __name__ == "__main__":
