@@ -17,37 +17,34 @@ def main():
 
         width, height = listDatasets[i].size
 
-        listDatasets[i] = list(
-            Image.open(os.path.join(datasetPATH, datasetFiles[i])).getdata()
-        )
+        listDatasets[i] = list(listDatasets[i].getdata())
 
         listDatasets[i] = [
             listDatasets[i][n : n + width]
             for n in range(0, len(listDatasets[i]), width)
         ]
 
-        image = Image.open(imagePATH)  # Image variable
-        image = image.convert("L")
+    image = Image.open(imagePATH)  # Image variable
+    image = image.convert("L")
 
-        width, height = image.size
+    width, height = image.size
 
-        pixelMatrix = list(image.getdata())
-        pixelMatrix = [
-            pixelMatrix[n : n + width] for n in range(0, len(pixelMatrix), width)
-        ]
+    pixelMatrix = list(image.getdata())
+    pixelMatrix = [
+        pixelMatrix[n : n + width] for n in range(0, len(pixelMatrix), width)
+    ]
 
-        listTextureResult = [None for _ in range(len(listDatasets))]
-        for i in range(len(listDatasets)):
-            listTextureResult[i] = cosineSimilarityTexture(pixelMatrix, listDatasets[i])
+    listTextureResult = [None for _ in range(len(listDatasets))]
+    for i in range(len(listDatasets)):
+        listTextureResult[i] = cosineSimilarityTexture(pixelMatrix, listDatasets[i])
 
-        print(listTextureResult)
+    print(listTextureResult)
 
 
 def GLCM(image):
     height = len(image)
     width = len(image[0])
     frameworkMatrix = [[0 for _ in range(256)] for _ in range(256)]
-
     for i in range(height):
         for j in range(width - 1):
             idxI = image[i][j]
@@ -74,8 +71,8 @@ def metric(image):
         for j in range(255):
             contrast += glcm[i][j] * ((i - j) ** 2)
             homogeneity += (glcm[i][j]) / (1 + ((i - j) ** 2))
-            dissimilarity += (glcm[i][j] * abs((i-j)))
-            asm += ((glcm[i][j]) ** 2)
+            dissimilarity += glcm[i][j] * abs((i - j))
+            asm += (glcm[i][j]) ** 2
     energy = math.sqrt(asm)
     return contrast, homogeneity, dissimilarity, asm, energy
 
