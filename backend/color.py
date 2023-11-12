@@ -1,6 +1,7 @@
 from PIL import Image
 import math
 import os
+from numba import jit
 
 
 def color():
@@ -70,6 +71,7 @@ def color():
     return listResultColor
 
 
+@jit(nopython=True)
 def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
     max_value = max(r, g, b)
