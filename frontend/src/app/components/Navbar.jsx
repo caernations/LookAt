@@ -11,6 +11,10 @@ const navLinks = [
     path: "#home",
   },
   {
+    title: "How It Works",
+    path: "#how-it-works",
+  },
+  {
     title: "How To Use",
     path: "#how-to-use",
   },
@@ -48,7 +52,7 @@ const Navbar = () => {
           )}
         </div>
         <div className="menu hidden md:block md:w-auto" id="navbar">
-          <ul className="flex items-center justify-center p-3 pl-60 pr-60 bg-[#181818d2] bg-opacity-30 space-x-40 relative mx-auto rounded-3xl border border-slate-200">
+          <ul className="flex items-center justify-center p-3 pl-28 pr-28 bg-[#181818d2] bg-opacity-30 space-x-24 relative mx-auto rounded-3xl border border-slate-200">
             {navLinks.map((link, index) => (
               <li key={index}>
                 <NavLink href={link.path} title={link.title} />
