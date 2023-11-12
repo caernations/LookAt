@@ -20,7 +20,9 @@ const HeroSection = () => {
           repeat={Infinity}
         />
       </h1>
+      
     </section>
+    
   );
 };
 
