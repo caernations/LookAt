@@ -1,11 +1,12 @@
 from PIL import Image
 import math
 import os
+from numba import jit
 
 
 def color():
-    imagePATH = "./image/image.jpg"  # Path to image (directly to image.jpg)
-    datasetPATH = "./dataset"  # Path to dataset folder
+    imagePATH = "./static/image/image.jpg"  # Path to image (directly to image.jpg)
+    datasetPATH = "./static/dataset"  # Path to dataset folder
     datasetFiles = os.listdir(datasetPATH)
 
     listDatasets = [None for _ in range(len(datasetFiles))]
@@ -70,6 +71,7 @@ def color():
     return listResultColor
 
 
+@jit(nopython=True)
 def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
     max_value = max(r, g, b)
@@ -99,9 +101,9 @@ def convertRGBToHSV(r, g, b):
 
 
 def histogramHSV(image):
-    histH = [0 for _ in range(361)]
-    histS = [0 for _ in range(256)]
-    histV = [0 for _ in range(256)]
+    histH = [0 for _ in range(360)]
+    histS = [0 for _ in range(255)]
+    histV = [0 for _ in range(255)]
 
     for i in range(len(image)):
         for j in range(len(image[0])):

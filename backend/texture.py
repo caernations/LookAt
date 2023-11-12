@@ -37,7 +37,7 @@ def texture():
     listTextureResult = [None for _ in range(len(listDatasets))]
     for i in range(len(listDatasets)):
         listTextureResult[i] = round(
-            cosineSimilarityTexture(pixelMatrix, listDatasets[i]) * 100, 3
+            cosineSimilarityTexture(pixelMatrix, listDatasets[i]) * 100, 5
         )
 
     return listTextureResult
