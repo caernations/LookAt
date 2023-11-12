@@ -2,104 +2,78 @@ from PIL import Image
 import math
 import os
 from numba import jit
+import multiprocessing
 
 
-def color():
-    imagePATH = "./static/image/image.jpg"  # Path to image (directly to image.jpg)
-    datasetPATH = "./static/dataset"  # Path to dataset folder
-    datasetFiles = os.listdir(datasetPATH)
+def process_image(image_path, output, index):
+    image = Image.open(image_path)
 
-    listDatasets = [None for _ in range(len(datasetFiles))]
-    listvektorDatasets = []
-
-    for i in range(len(datasetFiles)):
-        listDatasets[i] = Image.open(os.path.join(datasetPATH, datasetFiles[i]))
-
-        if listDatasets[i].mode != "RGB":
-            listDatasets[i] = listDatasets[i].convert("RGB")
-
-        width, height = listDatasets[i].size
-
-        listDatasets[i] = list(
-            Image.open(os.path.join(datasetPATH, datasetFiles[i])).getdata()
-        )
-
-        listDatasets[i] = [
-            listDatasets[i][j * width : (j + 1) * width] for j in range(height)
-        ]
-
-        meanHD = 0
-        meanSD = 0
-        meanVD = 0
-        # Convert RGB to HSV
-        for j in range(height):
-            for k in range(width):
-                r, g, b = listDatasets[i][j][k]
-                h, s, v = convertRGBToHSV(r, g, b)
-                meanHD += h
-                meanSD += s
-                meanVD += v
-        meanHD /= (height * width)
-        meanVD /= (height * width)
-        meanSD /= (height * width)
-        vektorDataset = [meanHD, meanVD, meanSD] 
-        listvektorDatasets.append(vektorDataset)
-
-    image = Image.open(imagePATH)  # Image variable
-
-    if image.mode != "RGB":  # Check if image is RGB
+    if image.mode != "RGB":
         image = image.convert("RGB")
+
     width, height = image.size
 
     pixelMatrix = list(image.getdata())
     pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
 
-    meanHI = 0
-    meanSI = 0
-    meanVI = 0
     for i in range(height):
         for j in range(width):
             r, g, b = pixelMatrix[i][j]
             h, s, v = convertRGBToHSV(r, g, b)
-            meanHI += h
-            meanSI += s
-            meanVI += v
-    
-    meanHI /= (height * width)
-    meanVI /= (height * width)
-    meanSI /= (height * width)
+            pixelMatrix[i][j] = (h, s, v)
 
-    vektorImage = [meanHI, meanSI, meanVI]
+    hist = histogramHSV(pixelMatrix)
+    output[index] = hist
 
-    # Pokoknya kalo mau akses foto-foto yang di dataset ada di listDatasets
-    # Tinggal ambil index nya
-    # Kalo mau akses foto image ada di pixelMatrix
-    # fyi (semua foto sudah diubah ke HSV)
 
-    listResultColor = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
+def color():
+    imagePATH = "./static/image/image.jpg"
+    datasetPATH = "./static/dataset"
+    datasetFiles = os.listdir(datasetPATH)
+
+    manager = multiprocessing.Manager()
+    output = manager.dict()
+
+    processes = []
+    for i, datasetFile in enumerate(datasetFiles):
+        process = multiprocessing.Process(
+            target=process_image,
+            args=(os.path.join(datasetPATH, datasetFile), output, i),
+        )
+        process.start()
+        processes.append(process)
+
+    for process in processes:
+        process.join()
+
+    histDatasets = [output[i] for i in range(len(datasetFiles))]
+
+    image = Image.open(imagePATH)
+
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+
+    width, height = image.size
+
+    pixelMatrix = list(image.getdata())
+    pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
+
+    for i in range(height):
+        for j in range(width):
+            r, g, b = pixelMatrix[i][j]
+            h, s, v = convertRGBToHSV(r, g, b)
+            pixelMatrix[i][j] = (h, s, v)
+
+    (histH, histS, histV) = histogramHSV(pixelMatrix)
+
+    listResultColor = [None for _ in range(len(histDatasets))]
+    for i in range(len(histDatasets)):
         listResultColor[i] = round(
-            cosineSimilarityImage(vektorImage, listvektorDatasets[i]) * 100, 3
+            cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
         )
 
     return listResultColor
 
-def splitImage(matrix):
-    parts = []
-    partRow = len(matrix) // 3
-    partCol = len(matrix[0]) // 3
-    for i in range(3):
-        for j in range(3):
-            left = j * partCol
-            upper = i * partRow
-            right = left + partCol
-            lower = upper + partRow
-
-            submatrix = [row[left:right] for row in matrix[upper:lower]]
-
-            parts.append(submatrix)
-
-    return parts
 
 @jit(nopython=True)
 def convertRGBToHSV(r, g, b):
@@ -131,9 +105,9 @@ def convertRGBToHSV(r, g, b):
 
 
 def histogramHSV(image):
-    histH = [0 for _ in range(360)]
-    histS = [0 for _ in range(255)]
-    histV = [0 for _ in range(255)]
+    histH = [0 for _ in range(361)]
+    histS = [0 for _ in range(256)]
+    histV = [0 for _ in range(256)]
 
     for i in range(len(image)):
         for j in range(len(image[0])):
@@ -148,14 +122,28 @@ def histogramHSV(image):
     return (histH, histS, histV)
 
 
-def cosineSimilarityImage(vektor1, vektor2):
+def cosineSimilarity(image1, image2):
+    h1, s1, v1 = image1
+    h2, s2, v2 = image2
 
-    dotProduct = sum(a * b for a, b in zip(vektor1, vektor2))
-    magnitude1 = math.sqrt(sum(a**2 for a in vektor1))
-    magnitude2 = math.sqrt(sum(b**2 for b in vektor2))
-    result = dotProduct / (magnitude1 * magnitude2)
+    dotProductH = sum(a * b for a, b in zip(h1, h2))
+    magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
+    magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
+    resultH = dotProductH / (magnitudeH1 * magnitudeH2)
 
-    return result
+    dotProductS = sum(a * b for a, b in zip(s1, s2))
+    magnitudeS1 = math.sqrt(sum(a**2 for a in s1))
+    magnitudeS2 = math.sqrt(sum(b**2 for b in s2))
+    resultS = dotProductS / (magnitudeS1 * magnitudeS2)
+
+    dotProductV = sum(a * b for a, b in zip(v1, v2))
+    magnitudeV1 = math.sqrt(sum(a**2 for a in v1))
+    magnitudeV2 = math.sqrt(sum(b**2 for b in v2))
+    resultV = dotProductV / (magnitudeV1 * magnitudeV2)
+
+    overallResult = (resultH + resultS + resultV) / 3
+
+    return overallResult
 
 
 if __name__ == "__main__":
