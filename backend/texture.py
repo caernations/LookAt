@@ -4,8 +4,8 @@ import os
 
 
 def texture():
-    imagePATH = "./image/image.jpg"  # Path to image (directly to image.jpg)
-    datasetPATH = "./dataset"  # Path to dataset folder
+    imagePATH = "./static/image/image.jpg"  # Path to image (directly to image.jpg)
+    datasetPATH = "./static/dataset"  # Path to dataset folder
     datasetFiles = os.listdir(datasetPATH)
 
     listDatasets = [None for _ in range(len(datasetFiles))]
