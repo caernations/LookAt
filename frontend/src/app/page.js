@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-[#181818]">
       <Navbar />
-      <div className="container mt-32 mx-auto px-12 py-4">
+      <div className="container mt-32 mx-auto py-4">
         <HeroSection />
         <ImageInput />
         <HowToUse />

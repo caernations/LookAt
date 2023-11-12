@@ -6,10 +6,11 @@ import {
   XCircleIcon,
   FolderOpenIcon,
 } from "@heroicons/react/24/solid";
+import Webcam from "react-webcam";
 
 const ImageInput = () => {
   const fileInputRef = useRef(null);
-  const videoRef = useRef(null); // Create a ref for the video element
+  const videoRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [toggleState, setToggleState] = useState(false);
@@ -162,7 +163,7 @@ const ImageInput = () => {
 
               <div
                 className={`absolute bg-white w-9 h-9 rounded-full shadow-md transform transition-transform duration-500 ${
-                  toggleState ? "translate-x-24" : "translate-x-1"
+                  toggleState ? "translate-x-28" : "-translate-x-1"
                 }`}
               ></div>
 
