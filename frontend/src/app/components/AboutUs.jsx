@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import {
+  ArrowRightCircleIcon
+} from "@heroicons/react/24/solid";
 
 const usData = [
   {
@@ -41,13 +44,13 @@ const AboutUs = () => {
 
   return (
     <section id="about-us" className="text-white bg-[#181818]">
-      <div className="container mx-auto px-4 py-8 w-[1200px]">
+      <div className="container mx-auto px-20 py-8 max-w-full">
         <h1 className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
           ABOUT US
         </h1>
-        <div className="mt-16 grid grid-cols-9 gap-4">
-          <div className="col-span-5 p-4">
-            <p>
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-9 gap-4 md:gap-24">
+          <div className="md:col-span-5 p-4">
+            <p className="text-justify">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit
               amet dolor eleifend, elementum diam vel, bibendum odio. Morbi
               eleifend ex sit amet consequat suscipit. Nullam accumsan nulla
@@ -65,11 +68,11 @@ const AboutUs = () => {
               mauris a, imperdiet mauris.
             </p>
           </div>
-          <div className="col-span-4 relative">
+          <div className="md:col-span-4 relative">
             <img
               src={usData[current].image}
               alt={usData[current].alt}
-              className="w-full h-full object-cover"
+              className="w-full h-auto object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-500 to-green-700 opacity-0 hover:opacity-90 transition-opacity duration-300 flex items-center justify-start pl-4">
               <p className="text-white text-xl font-bold">
@@ -78,9 +81,9 @@ const AboutUs = () => {
             </div>
             <button
               onClick={handleNextClick}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black text-white p-2 z-10"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 text-white p-2 z-10"
             >
-              &gt;
+              <ArrowRightCircleIcon className="text-white h-10"/>
             </button>
           </div>
         </div>
