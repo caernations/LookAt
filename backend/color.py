@@ -16,13 +16,22 @@ def process_image(image_path, output, index):
     pixelMatrix = list(image.getdata())
     pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
 
+    histH = [0 for _ in range(361)]
+    histS = [0 for _ in range(256)]
+    histV = [0 for _ in range(256)]
+
     for i in range(height):
         for j in range(width):
             r, g, b = pixelMatrix[i][j]
             h, s, v = convertRGBToHSV(r, g, b)
-            pixelMatrix[i][j] = (h, s, v)
+            h = round(h)
+            s = round(s)
+            v = round(v)
+            histH[h] += 1
+            histS[s] += 1
+            histV[v] += 1
 
-    hist = histogramHSV(pixelMatrix)
+    hist = histH, histS, histV
     output[index] = hist
 
 
@@ -58,13 +67,20 @@ def color():
     pixelMatrix = list(image.getdata())
     pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
 
+    histH = [0 for _ in range(361)]
+    histS = [0 for _ in range(256)]
+    histV = [0 for _ in range(256)]
+
     for i in range(height):
         for j in range(width):
             r, g, b = pixelMatrix[i][j]
             h, s, v = convertRGBToHSV(r, g, b)
-            pixelMatrix[i][j] = (h, s, v)
-
-    (histH, histS, histV) = histogramHSV(pixelMatrix)
+            h = round(h)
+            s = round(s)
+            v = round(v)
+            histH[h] += 1
+            histS[s] += 1
+            histV[v] += 1
 
     listResultColor = [None for _ in range(len(histDatasets))]
     for i in range(len(histDatasets)):
@@ -102,24 +118,6 @@ def convertRGBToHSV(r, g, b):
         h += 360
 
     return (h, s, v)
-
-
-def histogramHSV(image):
-    histH = [0 for _ in range(361)]
-    histS = [0 for _ in range(256)]
-    histV = [0 for _ in range(256)]
-
-    for i in range(len(image)):
-        for j in range(len(image[0])):
-            h, s, v = image[i][j]
-            h = round(h)
-            s = round(s)
-            v = round(v)
-            histH[h] += 1
-            histS[s] += 1
-            histV[v] += 1
-
-    return (histH, histS, histV)
 
 
 def cosineSimilarity(image1, image2):
