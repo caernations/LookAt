@@ -5,6 +5,7 @@ import ImageInput from "./components/ImageInput";
 import AboutUs from "./components/AboutUs";
 import HowToUse from "./components/HowToUse";
 import Footer from "./components/Footer";
+import Result from "./components/Result";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <div className="container mt-32 mx-auto py-4">
         <HeroSection />
         <ImageInput />
+        <Result />
         <HowToUse />
         <AboutUs />
       </div>

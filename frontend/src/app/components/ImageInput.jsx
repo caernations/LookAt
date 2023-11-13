@@ -1,12 +1,13 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
+import Webcam from "react-webcam";
+import Result from "./Result";
 import {
   PhotoIcon,
   CameraIcon,
   XCircleIcon,
   FolderOpenIcon,
 } from "@heroicons/react/24/solid";
-import Webcam from "react-webcam";
 
 const ImageInput = () => {
   const fileInputRef = useRef(null);
@@ -15,6 +16,8 @@ const ImageInput = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [toggleState, setToggleState] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [searchClicked, setSearchClicked] = useState(false);
+  const [imagePath, setImagePath] = useState("");
 
   const handleImageUpload = () => {
     fileInputRef.current.click();
@@ -80,6 +83,11 @@ const ImageInput = () => {
   // Function to handle the camera button click
   const handleOpenCamera = () => {
     setShowCamera(true);
+  };
+
+  const handleSearch = () => {
+    setSearchClicked(true);
+    setImagePath("../../images/image5.png"); // Set the image path here
   };
 
   return (
@@ -176,7 +184,10 @@ const ImageInput = () => {
               </span>
             </button>
           </div>
-          <button className="bg-[#181818] bg-opacity-30 font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100">
+          <button
+            className="bg-[#181818] bg-opacity-30 font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
+            onClick={handleSearch}
+          >
             Search
           </button>
           <input
@@ -188,6 +199,7 @@ const ImageInput = () => {
           />
         </div>
       </div>
+      {searchClicked && <Result imagePath={imagePath} />}
     </section>
   );
 };
