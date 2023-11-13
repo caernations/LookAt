@@ -34,24 +34,23 @@ const imageResults = [
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'row',
-    backgroundColor: '#E4E4E4'
-  },
-  section: {
-    margin: 10,
+    flexWrap: 'wrap',
+    backgroundColor: '#E4E4E4',
     padding: 10,
-    flexGrow: 1
+    justifyContent: 'center',
   },
-  item:{
-    display : 'flex',
-    flexDirection: 'column',
+  image: {
+    width: "30%",
+    margin: '1%',
+    height: "auto",
   }
 });
 
 const MyDocument = ({ images }) => (
   <Document>
-    <Page size="A4" style={styles.item}>
+    <Page size="A4" style={styles.page}>
       {images.map((imagePath, index) => (
-        <Image key={index} src={imagePath} style={{ height: "auto", width: "20%" }} />
+        <Image key={index} src={imagePath} style={styles.image} />
       ))}
     </Page>
   </Document>
