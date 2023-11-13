@@ -1,83 +1,73 @@
-from PIL import Image
+import cv2
 import math
 import os
 import numpy as np
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from numba import jit
 
+def process_image(image_path):
+    # Open the image using OpenCV
+    image = cv2.imread(image_path)
+
+    # Convert the image from BGR to RGB
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # Convert the image to HSV using NumPy
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
+    return hsv_image.tolist()  # Convert NumPy array to list for compatibility with existing code
+
+def parallel_process_dataset(dataset_path, num_workers=4):
+    dataset_files = os.listdir(dataset_path)
+    image_paths = [os.path.join(dataset_path, file) for file in dataset_files]
+
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        # Process images in parallel
+        processed_datasets = list(executor.map(process_image, image_paths))
+
+    return processed_datasets
 
 def color():
-    imagePATH = "./static/image/image.jpg"  # Path to image (directly to image.jpg)
-    datasetPATH = "./static/dataset"  # Path to dataset folder
-    datasetFiles = os.listdir(datasetPATH)
+    image_path = "./static/image/image.jpg"
+    dataset_path = "./static/dataset"
 
-    listDatasets = [None for _ in range(len(datasetFiles))]
+    # Process the dataset in parallel
+    processed_datasets = parallel_process_dataset(dataset_path)
 
-    for i in range(len(datasetFiles)):
-        listDatasets[i] = Image.open(os.path.join(datasetPATH, datasetFiles[i]))
+    # Process the image
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        if listDatasets[i].mode != "RGB":
-            listDatasets[i] = listDatasets[i].convert("RGB")
+    height, width, _ = image.shape
 
-        width, height = listDatasets[i].size
-
-        listDatasets[i] = list(
-            Image.open(os.path.join(datasetPATH, datasetFiles[i])).getdata()
-        )
-
-        listDatasets[i] = [
-            listDatasets[i][j * width : (j + 1) * width] for j in range(height)
-        ]
-
-        # Convert RGB to HSV
-        for j in range(height):
-            for k in range(width):
-                r, g, b = listDatasets[i][j][k]
-                h, s, v = convertRGBToHSV(r, g, b)
-                listDatasets[i][j][k] = (h, s, v)
-
-    image = Image.open(imagePATH)  # Image variable
-
-    if image.mode != "RGB":  # Check if image is RGB
-        image = image.convert("RGB")
-    width, height = image.size
-
-    pixelMatrix = list(image.getdata())
-    pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
+    pixel_matrix = image.tolist()  # Convert NumPy array to list for compatibility with existing code
 
     for i in range(height):
         for j in range(width):
-            r, g, b = pixelMatrix[i][j]
+            r, g, b = pixel_matrix[i][j]
             h, s, v = convertRGBToHSV(r, g, b)
-            pixelMatrix[i][j] = (h, s, v)
+            pixel_matrix[i][j] = (h, s, v)
 
-    # Pokoknya kalo mau akses foto-foto yang di dataset ada di listDatasets
-    # Tinggal ambil index nya
-    # Kalo mau akses foto image ada di pixelMatrix
-    # fyi (semua foto sudah diubah ke HSV)
+    # Histogram
+    (hist_h, hist_s, hist_v) = histogramHSV(pixel_matrix)
 
-    # Bikin histogram
-    # Image
-    (histH, histS, histV) = histogramHSV(pixelMatrix)
-    # Dataset
-    histDatasets = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        histDatasets[i] = histogramHSV(listDatasets[i])
+    # Dataset histograms
+    hist_datasets = [histogramHSV(dataset) for dataset in processed_datasets]
 
-    listResultColor = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        listResultColor[i] = round(
-            cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
-        )
+    # Cosine similarity
+    list_result_color = [
+        round(cosineSimilarity((hist_h, hist_s, hist_v), hist_dataset) * 100, 3)
+        for hist_dataset in hist_datasets
+    ]
 
-    return listResultColor
-
-
+    return list_result_color
 
 @jit(nopython=True)
 def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
-    max_value = max(r, g, b)
-    min_value = min(r, g, b)
+    max_value = np.max([r, g, b])
+    min_value = np.min([r, g, b])
     delta = max_value - min_value
 
     v = max_value
@@ -101,11 +91,10 @@ def convertRGBToHSV(r, g, b):
 
     return (h, s, v)
 
-
 def histogramHSV(image):
-    histH = [0 for _ in range(361)]
-    histS = [0 for _ in range(101)]
-    histV = [0 for _ in range(101)]
+    histH = np.zeros(181, dtype=int)
+    histS = np.zeros(256, dtype=int)
+    histV = np.zeros(256, dtype=int)
 
     for i in range(len(image)):
         for j in range(len(image[0])):
@@ -119,30 +108,28 @@ def histogramHSV(image):
 
     return (histH, histS, histV)
 
-
 def cosineSimilarity(image1, image2):
     h1, s1, v1 = image1
     h2, s2, v2 = image2
 
-    dotProductH = sum(a * b for a, b in zip(h1, h2))
-    magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
-    magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
+    dotProductH = np.sum(np.multiply(h1, h2))
+    magnitudeH1 = np.sqrt(np.sum(np.square(h1)))
+    magnitudeH2 = np.sqrt(np.sum(np.square(h2)))
     resultH = dotProductH / (magnitudeH1 * magnitudeH2)
 
-    dotProductS = sum(a * b for a, b in zip(s1, s2))
-    magnitudeS1 = math.sqrt(sum(a**2 for a in s1))
-    magnitudeS2 = math.sqrt(sum(b**2 for b in s2))
+    dotProductS = np.sum(np.multiply(s1, s2))
+    magnitudeS1 = np.sqrt(np.sum(np.square(s1)))
+    magnitudeS2 = np.sqrt(np.sum(np.square(s2)))
     resultS = dotProductS / (magnitudeS1 * magnitudeS2)
 
-    dotProductV = sum(a * b for a, b in zip(v1, v2))
-    magnitudeV1 = math.sqrt(sum(a**2 for a in v1))
-    magnitudeV2 = math.sqrt(sum(b**2 for b in v2))
+    dotProductV = np.sum(np.multiply(v1, v2))
+    magnitudeV1 = np.sqrt(np.sum(np.square(v1)))
+    magnitudeV2 = np.sqrt(np.sum(np.square(v2)))
     resultV = dotProductV / (magnitudeV1 * magnitudeV2)
 
     overallResult = (resultH + resultS + resultV) / 3
 
     return overallResult
-
 
 if __name__ == "__main__":
     color()
