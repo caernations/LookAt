@@ -148,6 +148,8 @@ const ImageInput = () => {
         }, 1000);
         return () => clearTimeout(timerId);
       }
+    } else {
+      setTimer(5);
     }
   }, [showCamera, timer, capture]);
 
