@@ -101,9 +101,9 @@ def convertRGBToHSV(r, g, b):
 
 
 def histogramHSV(image):
-    histH = [0 for _ in range(360)]
-    histS = [0 for _ in range(255)]
-    histV = [0 for _ in range(255)]
+    histH = [0 for _ in range(361)]
+    histS = [0 for _ in range(101)]
+    histV = [0 for _ in range(101)]
 
     for i in range(len(image)):
         for j in range(len(image[0])):
