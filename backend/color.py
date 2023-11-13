@@ -1,28 +1,22 @@
-from PIL import Image
+import cv2
 import math
 import os
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
+from numba import jit
 
 def process_image(image_path):
-    image = Image.open(image_path)
+    # Open the image using OpenCV
+    image = cv2.imread(image_path)
 
-    if image.mode != "RGB":
-        image = image.convert("RGB")
+    # Convert the image from BGR to RGB
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    width, height = image.size
+    # Convert the image to HSV using NumPy
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
-    pixel_matrix = list(image.getdata())
-    pixel_matrix = [pixel_matrix[i * width: (i + 1) * width] for i in range(height)]
-
-    for i in range(height):
-        for j in range(width):
-            r, g, b = pixel_matrix[i][j]
-            h, s, v = convertRGBToHSV(r, g, b)
-            pixel_matrix[i][j] = (h, s, v)
-
-    return pixel_matrix
+    return hsv_image.tolist()  # Convert NumPy array to list for compatibility with existing code
 
 def parallel_process_dataset(dataset_path, num_workers=4):
     dataset_files = os.listdir(dataset_path)
@@ -42,14 +36,12 @@ def color():
     processed_datasets = parallel_process_dataset(dataset_path)
 
     # Process the image
-    image = Image.open(image_path)
-    if image.mode != "RGB":
-        image = image.convert("RGB")
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    width, height = image.size
+    height, width, _ = image.shape
 
-    pixel_matrix = list(image.getdata())
-    pixel_matrix = [pixel_matrix[i * width: (i + 1) * width] for i in range(height)]
+    pixel_matrix = image.tolist()  # Convert NumPy array to list for compatibility with existing code
 
     for i in range(height):
         for j in range(width):
@@ -74,8 +66,8 @@ def color():
 @jit(nopython=True)
 def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
-    max_value = max(r, g, b)
-    min_value = min(r, g, b)
+    max_value = np.max([r, g, b])
+    min_value = np.min([r, g, b])
     delta = max_value - min_value
 
     v = max_value
@@ -99,11 +91,10 @@ def convertRGBToHSV(r, g, b):
 
     return (h, s, v)
 
-
 def histogramHSV(image):
-    histH = [0 for _ in range(361)]
-    histS = [0 for _ in range(101)]
-    histV = [0 for _ in range(101)]
+    histH = np.zeros(181, dtype=int)
+    histS = np.zeros(256, dtype=int)
+    histV = np.zeros(256, dtype=int)
 
     for i in range(len(image)):
         for j in range(len(image[0])):
@@ -117,30 +108,28 @@ def histogramHSV(image):
 
     return (histH, histS, histV)
 
-
 def cosineSimilarity(image1, image2):
     h1, s1, v1 = image1
     h2, s2, v2 = image2
 
-    dotProductH = sum(a * b for a, b in zip(h1, h2))
-    magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
-    magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
+    dotProductH = np.sum(np.multiply(h1, h2))
+    magnitudeH1 = np.sqrt(np.sum(np.square(h1)))
+    magnitudeH2 = np.sqrt(np.sum(np.square(h2)))
     resultH = dotProductH / (magnitudeH1 * magnitudeH2)
 
-    dotProductS = sum(a * b for a, b in zip(s1, s2))
-    magnitudeS1 = math.sqrt(sum(a**2 for a in s1))
-    magnitudeS2 = math.sqrt(sum(b**2 for b in s2))
+    dotProductS = np.sum(np.multiply(s1, s2))
+    magnitudeS1 = np.sqrt(np.sum(np.square(s1)))
+    magnitudeS2 = np.sqrt(np.sum(np.square(s2)))
     resultS = dotProductS / (magnitudeS1 * magnitudeS2)
 
-    dotProductV = sum(a * b for a, b in zip(v1, v2))
-    magnitudeV1 = math.sqrt(sum(a**2 for a in v1))
-    magnitudeV2 = math.sqrt(sum(b**2 for b in v2))
+    dotProductV = np.sum(np.multiply(v1, v2))
+    magnitudeV1 = np.sqrt(np.sum(np.square(v1)))
+    magnitudeV2 = np.sqrt(np.sum(np.square(v2)))
     resultV = dotProductV / (magnitudeV1 * magnitudeV2)
 
     overallResult = (resultH + resultS + resultV) / 3
 
     return overallResult
-
 
 if __name__ == "__main__":
     color()
