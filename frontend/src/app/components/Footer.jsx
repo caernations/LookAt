@@ -8,8 +8,8 @@ const Footer = () => {
           <div className="mb-6 md:mb-0">
             <h5 className="text-xl font-bold mb-2">Logo</h5>
             <p className="text-sm">
-              The proper Footer on proper time can preserve you protection. We
-              assist you make sure everybody forward.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
+              metus erat, maximus vitae libero eget, molestie porttitor turpis.
             </p>
           </div>
           <div className="mb-6 md:mb-0">
@@ -54,9 +54,9 @@ const Footer = () => {
           </div>
           <div className="mb-6 md:mb-0">
             <h5 className="text-xl font-bold mb-2">Contact</h5>
-            <p className="text-sm mb-1">44 Derry St, City, USA, 70-102</p>
-            <p className="text-sm">[email protected]</p>
-            <p className="text-sm">+1-555-655-6568</p>
+            <p className="text-sm mb-1">Alamat</p>
+            <p className="text-sm">email</p>
+            <p className="text-sm">nomor hp</p>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-4 z-10 relative">
@@ -73,7 +73,7 @@ const Footer = () => {
       >
         <path
           fill="#343434"
-          fill-opacity="0.2"
+          fill-opacity="0.6"
           d="M0,32L60,53.3C120,75,240,117,360,128C480,139,600,117,720,144C840,171,960,245,1080,245.3C1200,245,1320,171,1380,133.3L1440,96L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
         ></path>
       </svg>
