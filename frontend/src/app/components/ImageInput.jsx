@@ -24,8 +24,12 @@ const ImageInput = () => {
   const [timer, setTimer] = useState(0);
   const intervalRef = useRef(null);
 
-  const handleImageUpload = () => {
+  const handleImageUpload = (event) => {
     fileInputRef.current.click();
+    if (event.target.files && event.target.files[0]) {
+      // Update the state with the first selected file
+      handleSearch(event.target.files[0]);
+    }
   };
 
   const handleFileSelected = (e) => {
@@ -260,7 +264,7 @@ const ImageInput = () => {
             </div>
             <button
               className="bg-[#181818] bg-opacity-30 font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
-              onClick={handleSearch}
+              onClick={() => handleSearch(selectedImage)}
             >
               Search
             </button>
