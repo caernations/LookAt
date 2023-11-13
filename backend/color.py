@@ -1,6 +1,7 @@
 from PIL import Image
 import math
 import os
+import numpy as np
 from numba import jit
 
 
@@ -69,6 +70,7 @@ def color():
         )
 
     return listResultColor
+
 
 
 @jit(nopython=True)
