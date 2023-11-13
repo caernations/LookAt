@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import Webcam from "react-webcam";
 import Result from "./Result";
 import {
@@ -11,7 +11,7 @@ import {
 
 const ImageInput = () => {
   const fileInputRef = useRef(null);
-  const videoRef = useRef(null);
+  const webcamRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [toggleState, setToggleState] = useState(false);
@@ -20,7 +20,9 @@ const ImageInput = () => {
   const [imagePath, setImagePath] = useState("");
   const [searchInitiated, setSearchInitiated] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  const [error, setError] = useState("");
+  const [searchError, setError] = useState("");
+  const [timer, setTimer] = useState(0);
+  const intervalRef = useRef(null);
 
   const handleImageUpload = () => {
     fileInputRef.current.click();
@@ -28,7 +30,6 @@ const ImageInput = () => {
 
   const handleFileSelected = (e) => {
     const file = e.target.files[0];
-
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
@@ -65,63 +66,99 @@ const ImageInput = () => {
     setToggleState(!toggleState);
   };
 
-  const openCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
-    } catch (err) {
-      console.error("Error accessing the camera", err);
-      alert(`Error accessing the camera: ${err.message}`);
-    }
-  };
-
-  useEffect(() => {
-    if (showCamera) {
-      openCamera();
-    }
-  }, [showCamera]);
-
   const handleOpenCamera = () => {
     setShowCamera(true);
   };
 
   const handleSearch = () => {
-    // Clear previous results and errors on new search
     setShowResult(false);
     setError("");
 
-    // Only proceed if an image has been selected
     if (selectedImage) {
       setSearchClicked(true);
       setSearchInitiated(true);
-      setImagePath(selectedImage); // Use the selected image path
-      setShowResult(true); // Show the result component
+      setImagePath(selectedImage);
+      setShowResult(true);
     } else {
-      // If no image is selected, set an error message
       setError("Please upload an image first.");
       setSearchClicked(false);
     }
   };
 
+  const mirroredStyle = {
+    transform: "scaleX(-1)",
+  };
+
+  const videoConstraints = {
+    width: 460,
+    height: 280,
+  };
+
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    // Create an image element
+    const img = new Image();
+    img.onload = () => {
+      // Create canvas to mirror the image
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      // Flip the context horizontally
+      ctx.translate(img.width, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, 0, 0);
+      // Convert the canvas to an image data URL
+      const mirroredImage = canvas.toDataURL("image/jpeg");
+      setSelectedImage(mirroredImage);
+    };
+    img.src = imageSrc;
+  }, [webcamRef]);
+
+  useEffect(() => {
+    if (showCamera) {
+      setTimer(10); // Reset timer to 10 seconds when the camera is shown
+      intervalRef.current = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer <= 1) {
+            capture(); // Take a picture when the timer hits 0
+            return 10; // Reset the timer back to 10
+          } else {
+            return prevTimer - 1;
+          }
+        });
+      }, 1000);
+    } else {
+      clearInterval(intervalRef.current); // Clear the interval when the camera is not shown
+    }
+  
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalRef.current);
+  }, [showCamera, capture]);
+  
+
   return (
     <section>
       {showCamera && (
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-10">
-          <div className="relative p-4 w-full max-w-md">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="rounded-lg"
-              style={{ transform: "scaleX(-1)" }}
-            ></video>
-            <button
-              onClick={() => setShowCamera(false)}
-              className="absolute top-0 right-0 m-4"
-            >
-              <XCircleIcon className="h-8 w-8 text-white" />
-            </button>
-          </div>
+        <div className="camera-modal">
+          <div className="timer">{timer}</div>
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            videoConstraints={videoConstraints}
+            style={mirroredStyle}
+            className="webcam p-8 rounded-2xl bg-[#373737] bg-opacity-30"
+          />
+          <button
+            onClick={() => {
+              setShowCamera(false);
+              clearInterval(intervalRef.current);
+            }}
+            className="close-camera-button"
+          >
+            Close Camera
+          </button>
         </div>
       )}
       <div
@@ -153,7 +190,7 @@ const ImageInput = () => {
         </div>
         <div className="md:col-span-2 bg-[#EEEEEE] h-[300px] md:h-[300px] w-full flex flex-col items-center justify-center">
           <button
-            className="h-9 flex items-center justify-center space-x-2 bg-[#181818] bg-opacity-30 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
+            className="camera-button h-9 flex items-center justify-center space-x-2 bg-[#181818] bg-opacity-30 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
             onClick={handleOpenCamera}
           >
             <CameraIcon className="h-5 w-5 text-white" />
@@ -211,13 +248,23 @@ const ImageInput = () => {
             style={{ display: "none" }}
           />
         </div>
-        {error && <div className="text-red-500 text-xl font-bold text-center my-2">{error}</div>}
+        {searchError && (
+          <div className="text-red-500 text-xl font-bold text-center my-2">
+            {searchError}
+          </div>
+        )}
       </div>
       <div
         className={`transition-transform duration-1000 ${
           showResult ? "translate-y-0" : "translate-y-full"
         }`}
-        style={{ position: "relative", bottom: 0, left: 0, right: 0, zIndex: 10 }}
+        style={{
+          position: "relative",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 10,
+        }}
       >
         {searchClicked && <Result searchInitiated={searchInitiated} />}
       </div>
