@@ -27,7 +27,6 @@ const ImageInput = () => {
   const handleImageUpload = (event) => {
     fileInputRef.current.click();
     if (event.target.files && event.target.files[0]) {
-      // Update the state with the first selected file
       handleSearch(event.target.files[0]);
     }
   };
@@ -75,7 +74,6 @@ const ImageInput = () => {
   };
 
   const handleSearch = (imageSrc) => {
-    // windows.preventDefault();
     setSelectedImage(imageSrc);
     setShowResult(false);
     setError("");
@@ -107,18 +105,12 @@ const ImageInput = () => {
     animationFillMode: "forwards",
   };
 
-  const globalStyles = `
-  @keyframes slideDown {
-    0% {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-`;
+  const slideUpAnimation = {
+    animationName: "slideUp",
+    animationTimingFunction: "ease-out",
+    animationDuration: "0.5s",
+    animationFillMode: "forwards",
+  };
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
@@ -284,7 +276,7 @@ const ImageInput = () => {
         </div>
         <div
           className={`transition-transform duration-1000 ${
-            showResult ? "translate-y-0" : "translate-y-full"
+            showResult ? "slide-up" : "translate-y-full"
           }`}
           style={{
             position: "relative",
