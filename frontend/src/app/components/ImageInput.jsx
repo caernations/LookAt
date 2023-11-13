@@ -70,14 +70,16 @@ const ImageInput = () => {
     setShowCamera(true);
   };
 
-  const handleSearch = () => {
+  const handleSearch = (imageSrc) => {
+    // windows.preventDefault();
+    setSelectedImage(imageSrc);
     setShowResult(false);
     setError("");
 
-    if (selectedImage) {
+    if (imageSrc) {
       setSearchClicked(true);
       setSearchInitiated(true);
-      setImagePath(selectedImage);
+      setImagePath(imageSrc);
       setShowResult(true);
     } else {
       setError("Please upload an image first.");
@@ -117,8 +119,7 @@ const ImageInput = () => {
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     if (imageSrc) {
-      setSelectedImage(imageSrc);
-      handleSearch();
+      handleSearch(imageSrc);
     }
 
     const img = new Image();
@@ -142,7 +143,6 @@ const ImageInput = () => {
         capture();
         setTimer(5);
       } else {
-        // Update the timer every second
         const timerId = setTimeout(() => {
           setTimer((prevTimer) => prevTimer - 1);
         }, 1000);
@@ -153,36 +153,36 @@ const ImageInput = () => {
 
   return (
     <>
-      <style>{globalStyles}</style>
       <section>
-        {showCamera && (
-          <div
-            style={slideDownAnimation}
-            className="fixed rounded-b-3xl top-0 w-[700px] h-[400px] z-50 bg-gray-300 bg-opacity-75 flex items-center justify-center"
-          >
-            <div className="camera-modal">
-              <div className="timer">{timer}</div>
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-                style={mirroredStyle}
-                className="webcam p-8 rounded-2xl bg-[#373737] bg-opacity-30"
-              />
-              <button
-                onClick={() => {
-                  setShowCamera(false);
-                  clearInterval(intervalRef.current);
-                }}
-                className="absolute top-0 right-0 m-4" // Position the button absolutely to the top right
-              >
-                <XCircleIcon className="h-8 w-8 text-white" />{" "}
-                {/* Adjust the icon size as needed */}
-              </button>
+        <div className="flex items-center justify-center h">
+          {showCamera && (
+            <div
+              style={slideDownAnimation}
+              className="top-0 fixed rounded-b-3xl w-[700px] h-[400px] z-50 bg-gray-300 bg-opacity-75 flex items-center justify-center"
+            >
+              <div className="camera-modal">
+                <div className="timer">{timer}</div>
+                <Webcam
+                  audio={false}
+                  ref={webcamRef}
+                  screenshotFormat="image/jpeg"
+                  videoConstraints={videoConstraints}
+                  style={mirroredStyle}
+                  className="webcam p-8 rounded-2xl bg-[#373737] bg-opacity-30"
+                />
+                <button
+                  onClick={() => {
+                    setShowCamera(false);
+                    clearInterval(intervalRef.current);
+                  }}
+                  className="absolute top-0 right-0 m-4"
+                >
+                  <XCircleIcon className="h-8 w-8 text-white" />{" "}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
         <div
           className={`mx-auto bg-opacity-50 mt-16 grid grid-cols-1 md:grid-cols-5 gap-5 bg-[#373737] p-4 rounded-3xl w-full md:w-[900px] border-8 border-opacity-10 border-[#373737] ${
             isDragging ? "border-gray-600" : ""
