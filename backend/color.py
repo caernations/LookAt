@@ -13,29 +13,64 @@ def color():
     listDatasets = [None for _ in range(len(datasetFiles))]
 
     for i in range(len(datasetFiles)):
-        listDatasets[i] = np.array(Image.open(os.path.join(datasetPATH, datasetFiles[i])))
-        if listDatasets[i].shape[2] != 3:
-            listDatasets[i] = listDatasets[i][:, :, :3]  # Keep only RGB channels
+        listDatasets[i] = Image.open(os.path.join(datasetPATH, datasetFiles[i]))
+
+        if listDatasets[i].mode != "RGB":
+            listDatasets[i] = listDatasets[i].convert("RGB")
+
+        width, height = listDatasets[i].size
+
+        listDatasets[i] = list(
+            Image.open(os.path.join(datasetPATH, datasetFiles[i])).getdata()
+        )
+
+        listDatasets[i] = [
+            listDatasets[i][j * width : (j + 1) * width] for j in range(height)
+        ]
 
         # Convert RGB to HSV
-        listDatasets[i] = np.apply_along_axis(convertRGBToHSV, -1, listDatasets[i])
+        for j in range(height):
+            for k in range(width):
+                r, g, b = listDatasets[i][j][k]
+                h, s, v = convertRGBToHSV(r, g, b)
+                listDatasets[i][j][k] = (h, s, v)
 
-    image = np.array(Image.open(imagePATH))  # Image variable
-    if image.shape[2] != 3:
-        image = image[:, :, :3]  # Keep only RGB channels
+    image = Image.open(imagePATH)  # Image variable
 
-    # Convert RGB to HSV
-    image = np.apply_along_axis(convertRGBToHSV, -1, image)
+    if image.mode != "RGB":  # Check if image is RGB
+        image = image.convert("RGB")
+    width, height = image.size
 
-    # Histogram
-    histH, histS, histV = histogramHSV(image)
+    pixelMatrix = list(image.getdata())
+    pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
 
-    histDatasets = [histogramHSV(dataset) for dataset in listDatasets]
+    for i in range(height):
+        for j in range(width):
+            r, g, b = pixelMatrix[i][j]
+            h, s, v = convertRGBToHSV(r, g, b)
+            pixelMatrix[i][j] = (h, s, v)
 
-    listResultColor = [round(cosineSimilarity((histH, histS, histV), histDataset) * 100, 3)
-                       for histDataset in histDatasets]
+    # Pokoknya kalo mau akses foto-foto yang di dataset ada di listDatasets
+    # Tinggal ambil index nya
+    # Kalo mau akses foto image ada di pixelMatrix
+    # fyi (semua foto sudah diubah ke HSV)
+
+    # Bikin histogram
+    # Image
+    (histH, histS, histV) = histogramHSV(pixelMatrix)
+    # Dataset
+    histDatasets = [None for _ in range(len(listDatasets))]
+    for i in range(len(listDatasets)):
+        histDatasets[i] = histogramHSV(listDatasets[i])
+
+    listResultColor = [None for _ in range(len(listDatasets))]
+    for i in range(len(listDatasets)):
+        listResultColor[i] = round(
+            cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
+        )
 
     return listResultColor
+
 
 
 @jit(nopython=True)
