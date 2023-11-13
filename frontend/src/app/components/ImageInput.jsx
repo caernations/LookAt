@@ -116,7 +116,11 @@ const ImageInput = () => {
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
- 
+    if (imageSrc) {
+      setSelectedImage(imageSrc);
+      handleSearch();
+    }
+
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
@@ -130,27 +134,22 @@ const ImageInput = () => {
       setSelectedImage(mirroredImage);
     };
     img.src = imageSrc;
-  }, [webcamRef]);
+  }, [webcamRef, handleSearch]);
 
   useEffect(() => {
     if (showCamera) {
-      setTimer(5); 
-      intervalRef.current = setInterval(() => {
-        setTimer((prevTimer) => {
-          if (prevTimer <= 0) {
-            capture(); 
-            return 5; 
-          } else {
-            return prevTimer - 1;
-          }
-        });
-      }, 1000);
-    } else {
-      clearInterval(intervalRef.current); 
+      if (timer === 0) {
+        capture();
+        setTimer(5);
+      } else {
+        // Update the timer every second
+        const timerId = setTimeout(() => {
+          setTimer((prevTimer) => prevTimer - 1);
+        }, 1000);
+        return () => clearTimeout(timerId);
+      }
     }
-
-    return () => clearInterval(intervalRef.current);
-  }, [showCamera, capture]);
+  }, [showCamera, timer, capture]);
 
   return (
     <>
@@ -159,7 +158,7 @@ const ImageInput = () => {
         {showCamera && (
           <div
             style={slideDownAnimation}
-            className="fixed top-0 left-0 w-full h-screen z-50 bg-black bg-opacity-75 flex items-center justify-center"
+            className="fixed rounded-b-3xl top-0 w-[700px] h-[400px] z-50 bg-gray-300 bg-opacity-75 flex items-center justify-center"
           >
             <div className="camera-modal">
               <div className="timer">{timer}</div>
@@ -176,9 +175,10 @@ const ImageInput = () => {
                   setShowCamera(false);
                   clearInterval(intervalRef.current);
                 }}
-                className="close-camera-button"
+                className="absolute top-0 right-0 m-4" // Position the button absolutely to the top right
               >
-                Close Camera
+                <XCircleIcon className="h-8 w-8 text-white" />{" "}
+                {/* Adjust the icon size as needed */}
               </button>
             </div>
           </div>
