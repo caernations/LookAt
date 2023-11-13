@@ -76,8 +76,8 @@ def color():
 @jit(nopython=True)
 def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
-    max_value = np.max([r, g, b])
-    min_value = np.min([r, g, b])
+    max_value = max(r, g, b)
+    min_value = min(r, g, b)
     delta = max_value - min_value
 
     v = max_value
@@ -99,16 +99,17 @@ def convertRGBToHSV(r, g, b):
     if h < 0:
         h += 360
 
-    return h, s, v
+    return (h, s, v)
+
 
 def histogramHSV(image):
-    histH = np.zeros(361)
-    histS = np.zeros(101)
-    histV = np.zeros(101)
+    histH = [0 for _ in range(361)]
+    histS = [0 for _ in range(101)]
+    histV = [0 for _ in range(101)]
 
     for i in range(len(image)):
         for j in range(len(image[0])):
-            h, s, v = image[i, j]
+            h, s, v = image[i][j]
             h = round(h)
             s = round(s)
             v = round(v)
@@ -116,25 +117,26 @@ def histogramHSV(image):
             histS[s] += 1
             histV[v] += 1
 
-    return histH, histS, histV
+    return (histH, histS, histV)
+
 
 def cosineSimilarity(image1, image2):
     h1, s1, v1 = image1
     h2, s2, v2 = image2
 
-    dotProductH = np.dot(h1, h2)
-    magnitudeH1 = np.linalg.norm(h1)
-    magnitudeH2 = np.linalg.norm(h2)
+    dotProductH = sum(a * b for a, b in zip(h1, h2))
+    magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
+    magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
     resultH = dotProductH / (magnitudeH1 * magnitudeH2)
 
-    dotProductS = np.dot(s1, s2)
-    magnitudeS1 = np.linalg.norm(s1)
-    magnitudeS2 = np.linalg.norm(s2)
+    dotProductS = sum(a * b for a, b in zip(s1, s2))
+    magnitudeS1 = math.sqrt(sum(a**2 for a in s1))
+    magnitudeS2 = math.sqrt(sum(b**2 for b in s2))
     resultS = dotProductS / (magnitudeS1 * magnitudeS2)
 
-    dotProductV = np.dot(v1, v2)
-    magnitudeV1 = np.linalg.norm(v1)
-    magnitudeV2 = np.linalg.norm(v2)
+    dotProductV = sum(a * b for a, b in zip(v1, v2))
+    magnitudeV1 = math.sqrt(sum(a**2 for a in v1))
+    magnitudeV2 = math.sqrt(sum(b**2 for b in v2))
     resultV = dotProductV / (magnitudeV1 * magnitudeV2)
 
     overallResult = (resultH + resultS + resultV) / 3
