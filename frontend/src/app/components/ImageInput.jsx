@@ -18,6 +18,9 @@ const ImageInput = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [searchClicked, setSearchClicked] = useState(false);
   const [imagePath, setImagePath] = useState("");
+  const [searchInitiated, setSearchInitiated] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [error, setError] = useState("");
 
   const handleImageUpload = () => {
     fileInputRef.current.click();
@@ -62,7 +65,6 @@ const ImageInput = () => {
     setToggleState(!toggleState);
   };
 
-  // Function to open the camera
   const openCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -73,21 +75,32 @@ const ImageInput = () => {
     }
   };
 
-  // Effect that runs when showCamera state changes
   useEffect(() => {
     if (showCamera) {
       openCamera();
     }
   }, [showCamera]);
 
-  // Function to handle the camera button click
   const handleOpenCamera = () => {
     setShowCamera(true);
   };
 
   const handleSearch = () => {
-    setSearchClicked(true);
-    setImagePath("../../images/image5.png"); // Set the image path here
+    // Clear previous results and errors on new search
+    setShowResult(false);
+    setError("");
+
+    // Only proceed if an image has been selected
+    if (selectedImage) {
+      setSearchClicked(true);
+      setSearchInitiated(true);
+      setImagePath(selectedImage); // Use the selected image path
+      setShowResult(true); // Show the result component
+    } else {
+      // If no image is selected, set an error message
+      setError("Please upload an image first.");
+      setSearchClicked(false);
+    }
   };
 
   return (
@@ -100,7 +113,7 @@ const ImageInput = () => {
               autoPlay
               playsInline
               className="rounded-lg"
-              style={{ transform: "scaleX(-1)" }} // CSS for mirroring the video
+              style={{ transform: "scaleX(-1)" }}
             ></video>
             <button
               onClick={() => setShowCamera(false)}
@@ -198,8 +211,16 @@ const ImageInput = () => {
             style={{ display: "none" }}
           />
         </div>
+        {error && <div className="text-red-500 text-xl font-bold text-center my-2">{error}</div>}
       </div>
-      {searchClicked && <Result imagePath={imagePath} />}
+      <div
+        className={`transition-transform duration-1000 ${
+          showResult ? "translate-y-0" : "translate-y-full"
+        }`}
+        style={{ position: "relative", bottom: 0, left: 0, right: 0, zIndex: 10 }}
+      >
+        {searchClicked && <Result searchInitiated={searchInitiated} />}
+      </div>
     </section>
   );
 };
