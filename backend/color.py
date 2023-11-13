@@ -2,76 +2,74 @@ from PIL import Image
 import math
 import os
 import numpy as np
-from numba import jit
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from functools import partial
 
+def process_image(image_path):
+    image = Image.open(image_path)
 
-def color():
-    imagePATH = "./static/image/image.jpg"  # Path to image (directly to image.jpg)
-    datasetPATH = "./static/dataset"  # Path to dataset folder
-    datasetFiles = os.listdir(datasetPATH)
-
-    listDatasets = [None for _ in range(len(datasetFiles))]
-
-    for i in range(len(datasetFiles)):
-        listDatasets[i] = Image.open(os.path.join(datasetPATH, datasetFiles[i]))
-
-        if listDatasets[i].mode != "RGB":
-            listDatasets[i] = listDatasets[i].convert("RGB")
-
-        width, height = listDatasets[i].size
-
-        listDatasets[i] = list(
-            Image.open(os.path.join(datasetPATH, datasetFiles[i])).getdata()
-        )
-
-        listDatasets[i] = [
-            listDatasets[i][j * width : (j + 1) * width] for j in range(height)
-        ]
-
-        # Convert RGB to HSV
-        for j in range(height):
-            for k in range(width):
-                r, g, b = listDatasets[i][j][k]
-                h, s, v = convertRGBToHSV(r, g, b)
-                listDatasets[i][j][k] = (h, s, v)
-
-    image = Image.open(imagePATH)  # Image variable
-
-    if image.mode != "RGB":  # Check if image is RGB
+    if image.mode != "RGB":
         image = image.convert("RGB")
+
     width, height = image.size
 
-    pixelMatrix = list(image.getdata())
-    pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
+    pixel_matrix = list(image.getdata())
+    pixel_matrix = [pixel_matrix[i * width: (i + 1) * width] for i in range(height)]
 
     for i in range(height):
         for j in range(width):
-            r, g, b = pixelMatrix[i][j]
+            r, g, b = pixel_matrix[i][j]
             h, s, v = convertRGBToHSV(r, g, b)
-            pixelMatrix[i][j] = (h, s, v)
+            pixel_matrix[i][j] = (h, s, v)
 
-    # Pokoknya kalo mau akses foto-foto yang di dataset ada di listDatasets
-    # Tinggal ambil index nya
-    # Kalo mau akses foto image ada di pixelMatrix
-    # fyi (semua foto sudah diubah ke HSV)
+    return pixel_matrix
 
-    # Bikin histogram
-    # Image
-    (histH, histS, histV) = histogramHSV(pixelMatrix)
-    # Dataset
-    histDatasets = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        histDatasets[i] = histogramHSV(listDatasets[i])
+def parallel_process_dataset(dataset_path, num_workers=4):
+    dataset_files = os.listdir(dataset_path)
+    image_paths = [os.path.join(dataset_path, file) for file in dataset_files]
 
-    listResultColor = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        listResultColor[i] = round(
-            cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
-        )
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        # Process images in parallel
+        processed_datasets = list(executor.map(process_image, image_paths))
 
-    return listResultColor
+    return processed_datasets
 
+def color():
+    image_path = "./static/image/image.jpg"
+    dataset_path = "./static/dataset"
 
+    # Process the dataset in parallel
+    processed_datasets = parallel_process_dataset(dataset_path)
+
+    # Process the image
+    image = Image.open(image_path)
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+
+    width, height = image.size
+
+    pixel_matrix = list(image.getdata())
+    pixel_matrix = [pixel_matrix[i * width: (i + 1) * width] for i in range(height)]
+
+    for i in range(height):
+        for j in range(width):
+            r, g, b = pixel_matrix[i][j]
+            h, s, v = convertRGBToHSV(r, g, b)
+            pixel_matrix[i][j] = (h, s, v)
+
+    # Histogram
+    (hist_h, hist_s, hist_v) = histogramHSV(pixel_matrix)
+
+    # Dataset histograms
+    hist_datasets = [histogramHSV(dataset) for dataset in processed_datasets]
+
+    # Cosine similarity
+    list_result_color = [
+        round(cosineSimilarity((hist_h, hist_s, hist_v), hist_dataset) * 100, 3)
+        for hist_dataset in hist_datasets
+    ]
+
+    return list_result_color
 
 @jit(nopython=True)
 def convertRGBToHSV(r, g, b):
