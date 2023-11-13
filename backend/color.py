@@ -38,16 +38,18 @@ def color():
     # Process the image
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
 
     height, width, _ = image.shape
 
     pixel_matrix = image.tolist()  # Convert NumPy array to list for compatibility with existing code
 
-    for i in range(height):
-        for j in range(width):
-            r, g, b = pixel_matrix[i][j]
-            h, s, v = convertRGBToHSV(r, g, b)
-            pixel_matrix[i][j] = (h, s, v)
+    # for i in range(height):
+    #     for j in range(width):
+    #         r, g, b = pixel_matrix[i][j]
+    #         h, s, v = convertRGBToHSV(r, g, b)
+    #         pixel_matrix[i][j] = (h, s, v)
 
     # Histogram
     (hist_h, hist_s, hist_v) = histogramHSV(pixel_matrix)
@@ -63,36 +65,8 @@ def color():
 
     return list_result_color
 
-@jit(nopython=True)
-def convertRGBToHSV(r, g, b):
-    r, g, b = r / 255.0, g / 255.0, b / 255.0
-    max_value = np.max([r, g, b])
-    min_value = np.min([r, g, b])
-    delta = max_value - min_value
-
-    v = max_value
-    if v == 0:
-        s = 0
-    else:
-        s = delta / v
-
-    if s == 0:
-        h = 0
-    else:
-        if v == r:
-            h = 60 * (((g - b) / delta) % 6)
-        elif v == g:
-            h = 60 * (((b - r) / delta) + 2)
-        elif v == b:
-            h = 60 * (((r - g) / delta) + 4)
-
-    if h < 0:
-        h += 360
-
-    return (h, s, v)
-
 def histogramHSV(image):
-    histH = np.zeros(181, dtype=int)
+    histH = np.zeros(256, dtype=int)
     histS = np.zeros(256, dtype=int)
     histV = np.zeros(256, dtype=int)
 
