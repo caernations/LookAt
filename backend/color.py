@@ -1,6 +1,7 @@
 from PIL import Image
 import math
 import os
+import numpy as np
 from numba import jit
 
 
@@ -12,61 +13,27 @@ def color():
     listDatasets = [None for _ in range(len(datasetFiles))]
 
     for i in range(len(datasetFiles)):
-        listDatasets[i] = Image.open(os.path.join(datasetPATH, datasetFiles[i]))
-
-        if listDatasets[i].mode != "RGB":
-            listDatasets[i] = listDatasets[i].convert("RGB")
-
-        width, height = listDatasets[i].size
-
-        listDatasets[i] = list(
-            Image.open(os.path.join(datasetPATH, datasetFiles[i])).getdata()
-        )
-
-        listDatasets[i] = [
-            listDatasets[i][j * width : (j + 1) * width] for j in range(height)
-        ]
+        listDatasets[i] = np.array(Image.open(os.path.join(datasetPATH, datasetFiles[i])))
+        if listDatasets[i].shape[2] != 3:
+            listDatasets[i] = listDatasets[i][:, :, :3]  # Keep only RGB channels
 
         # Convert RGB to HSV
-        for j in range(height):
-            for k in range(width):
-                r, g, b = listDatasets[i][j][k]
-                h, s, v = convertRGBToHSV(r, g, b)
-                listDatasets[i][j][k] = (h, s, v)
+        listDatasets[i] = np.apply_along_axis(convertRGBToHSV, -1, listDatasets[i])
 
-    image = Image.open(imagePATH)  # Image variable
+    image = np.array(Image.open(imagePATH))  # Image variable
+    if image.shape[2] != 3:
+        image = image[:, :, :3]  # Keep only RGB channels
 
-    if image.mode != "RGB":  # Check if image is RGB
-        image = image.convert("RGB")
-    width, height = image.size
+    # Convert RGB to HSV
+    image = np.apply_along_axis(convertRGBToHSV, -1, image)
 
-    pixelMatrix = list(image.getdata())
-    pixelMatrix = [pixelMatrix[i * width : (i + 1) * width] for i in range(height)]
+    # Histogram
+    histH, histS, histV = histogramHSV(image)
 
-    for i in range(height):
-        for j in range(width):
-            r, g, b = pixelMatrix[i][j]
-            h, s, v = convertRGBToHSV(r, g, b)
-            pixelMatrix[i][j] = (h, s, v)
+    histDatasets = [histogramHSV(dataset) for dataset in listDatasets]
 
-    # Pokoknya kalo mau akses foto-foto yang di dataset ada di listDatasets
-    # Tinggal ambil index nya
-    # Kalo mau akses foto image ada di pixelMatrix
-    # fyi (semua foto sudah diubah ke HSV)
-
-    # Bikin histogram
-    # Image
-    (histH, histS, histV) = histogramHSV(pixelMatrix)
-    # Dataset
-    histDatasets = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        histDatasets[i] = histogramHSV(listDatasets[i])
-
-    listResultColor = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        listResultColor[i] = round(
-            cosineSimilarity((histH, histS, histV), histDatasets[i]) * 100, 3
-        )
+    listResultColor = [round(cosineSimilarity((histH, histS, histV), histDataset) * 100, 3)
+                       for histDataset in histDatasets]
 
     return listResultColor
 
@@ -74,8 +41,8 @@ def color():
 @jit(nopython=True)
 def convertRGBToHSV(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
-    max_value = max(r, g, b)
-    min_value = min(r, g, b)
+    max_value = np.max([r, g, b])
+    min_value = np.min([r, g, b])
     delta = max_value - min_value
 
     v = max_value
@@ -97,17 +64,16 @@ def convertRGBToHSV(r, g, b):
     if h < 0:
         h += 360
 
-    return (h, s, v)
-
+    return h, s, v
 
 def histogramHSV(image):
-    histH = [0 for _ in range(361)]
-    histS = [0 for _ in range(101)]
-    histV = [0 for _ in range(101)]
+    histH = np.zeros(361)
+    histS = np.zeros(101)
+    histV = np.zeros(101)
 
     for i in range(len(image)):
         for j in range(len(image[0])):
-            h, s, v = image[i][j]
+            h, s, v = image[i, j]
             h = round(h)
             s = round(s)
             v = round(v)
@@ -115,26 +81,25 @@ def histogramHSV(image):
             histS[s] += 1
             histV[v] += 1
 
-    return (histH, histS, histV)
-
+    return histH, histS, histV
 
 def cosineSimilarity(image1, image2):
     h1, s1, v1 = image1
     h2, s2, v2 = image2
 
-    dotProductH = sum(a * b for a, b in zip(h1, h2))
-    magnitudeH1 = math.sqrt(sum(a**2 for a in h1))
-    magnitudeH2 = math.sqrt(sum(b**2 for b in h2))
+    dotProductH = np.dot(h1, h2)
+    magnitudeH1 = np.linalg.norm(h1)
+    magnitudeH2 = np.linalg.norm(h2)
     resultH = dotProductH / (magnitudeH1 * magnitudeH2)
 
-    dotProductS = sum(a * b for a, b in zip(s1, s2))
-    magnitudeS1 = math.sqrt(sum(a**2 for a in s1))
-    magnitudeS2 = math.sqrt(sum(b**2 for b in s2))
+    dotProductS = np.dot(s1, s2)
+    magnitudeS1 = np.linalg.norm(s1)
+    magnitudeS2 = np.linalg.norm(s2)
     resultS = dotProductS / (magnitudeS1 * magnitudeS2)
 
-    dotProductV = sum(a * b for a, b in zip(v1, v2))
-    magnitudeV1 = math.sqrt(sum(a**2 for a in v1))
-    magnitudeV2 = math.sqrt(sum(b**2 for b in v2))
+    dotProductV = np.dot(v1, v2)
+    magnitudeV1 = np.linalg.norm(v1)
+    magnitudeV2 = np.linalg.norm(v2)
     resultV = dotProductV / (magnitudeV1 * magnitudeV2)
 
     overallResult = (resultH + resultS + resultV) / 3
