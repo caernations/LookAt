@@ -7,7 +7,10 @@ from scipy.spatial import distance
 def calculate_similarity(hist1, hist2):
     hist1 = hist1 / (sum(hist1) + 1e-10)
     hist2 = hist2 / (sum(hist2) + 1e-10)
-    similarity = 1 - distance.cosine(hist1.flatten(), hist2.flatten())
+    dot_product = np.dot(hist1.flatten(), hist2.flatten())
+    norm_hist1 = np.linalg.norm(hist1)
+    norm_hist2 = np.linalg.norm(hist2)
+    similarity = dot_product / (norm_hist1 * norm_hist2)
     return similarity * 100
 
 
@@ -41,4 +44,8 @@ async def color(dataset, image):
                     "similaritypercentage": similarity,
                 }
             )
+
+    similar_images = sorted(
+        similar_images, key=lambda x: x["similaritypercentage"], reverse=True
+    )
     return similar_images
