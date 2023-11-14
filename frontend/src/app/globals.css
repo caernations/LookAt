@@ -97,3 +97,26 @@ body {
 .slide-up-result {
   animation: slideUpResult 0.5s ease-out forwards;
 }
+
+.imageHover {
+  position: 'relative';
+  overflow: 'hidden'; 
+}
+
+.imageHover img {
+  transition: all 0.3s ease;
+  border-radius: var(--rounded-2xl);
+}
+
+.imageHover:hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 10;
+  border-radius: 0.5rem;
+}
