@@ -1,63 +1,16 @@
-from PIL import Image
-import math
-import os
-
-
-def texture():
-    imagePATH = "./static/image/image.jpg"  # Path to image (directly to image.jpg)
-    datasetPATH = "./static/dataset"  # Path to dataset folder
-    datasetFiles = os.listdir(datasetPATH)
-
-    listDatasets = [None for _ in range(len(datasetFiles))]
-
-    for i in range(len(datasetFiles)):
-        listDatasets[i] = Image.open(os.path.join(datasetPATH, datasetFiles[i]))
-
-        listDatasets[i] = listDatasets[i].convert("L")
-
-        width, height = listDatasets[i].size
-
-        listDatasets[i] = list(listDatasets[i].getdata())
-
-        listDatasets[i] = [
-            listDatasets[i][n : n + width]
-            for n in range(0, len(listDatasets[i]), width)
-        ]
-
-    image = Image.open(imagePATH)  # Image variable
-    image = image.convert("L")
-
-    width, height = image.size
-
-    pixelMatrix = list(image.getdata())
-    pixelMatrix = [
-        pixelMatrix[n : n + width] for n in range(0, len(pixelMatrix), width)
-    ]
-
-    listTextureResult = [None for _ in range(len(listDatasets))]
-    for i in range(len(listDatasets)):
-        listTextureResult[i] = round(
-            cosineSimilarityTexture(pixelMatrix, listDatasets[i]) * 100, 5
-        )
-
-    return listTextureResult
+import base64
+import cv2
+import numpy as np
 
 
 def GLCM(image):
-    height = len(image)
-    width = len(image[0])
-    frameworkMatrix = [[0 for _ in range(256)] for _ in range(256)]
-    for i in range(height):
-        for j in range(width - 1):
-            idxI = image[i][j]
-            idxJ = image[i][j + 1]
-            frameworkMatrix[idxI][idxJ] += 1
-    transposeFramework = transposeMatrix(frameworkMatrix)
-
-    for i in range(256):
-        for j in range(256):
-            frameworkMatrix[i][j] += transposeFramework[i][j]
-
+    height, width = image.shape
+    frameworkMatrix = np.zeros((256, 256), dtype=np.uint64)
+    idxI = image[:, : width - 1]
+    idxJ = image[:, 1:]
+    np.add.at(frameworkMatrix, (idxI, idxJ), 1)
+    transposeFramework = frameworkMatrix.T
+    frameworkMatrix += transposeFramework
     glcm = normaliseSymmetricMatrix(frameworkMatrix)
     return glcm
 
@@ -67,21 +20,17 @@ def metric(image):
     homogeneity = 0
     dissimilarity = 0
     asm = 0
-    energy = 0
     glcm = GLCM(image)
-    for i in range(255):
-        for j in range(255):
-            contrast += glcm[i][j] * ((i - j) ** 2)
-            homogeneity += (glcm[i][j]) / (1 + ((i - j) ** 2))
-            dissimilarity += glcm[i][j] * abs((i - j))
-            asm += (glcm[i][j]) ** 2
-    energy = math.sqrt(asm)
-    vektor = []
-    vektor.append(contrast)
-    vektor.append(homogeneity)
-    vektor.append(dissimilarity)
-    vektor.append(asm)
-    vektor.append(energy)
+
+    i, j = np.indices((256, 256))
+
+    contrast = np.sum(glcm * (i - j) ** 2)
+    homogeneity = np.sum(glcm / (1 + (i - j) ** 2))
+    dissimilarity = np.sum(glcm * np.abs(i - j))
+    asm = np.sum(glcm**2)
+
+    energy = np.sqrt(asm)
+    vektor = [contrast, homogeneity, dissimilarity, asm, energy]
     return vektor
 
 
@@ -89,33 +38,44 @@ def cosineSimilarityTexture(image1, image2):
     v1 = metric(image1)
     v2 = metric(image2)
 
-    dotProduct = sum(a * b for a, b in zip(v1, v2))
-    magnitude1 = math.sqrt(sum(a**2 for a in v1))
-    magnitude2 = math.sqrt(sum(b**2 for b in v2))
-    result = dotProduct / (magnitude1 * magnitude2)
+    dotProduct = np.dot(v1, v2)
+    magnitude1 = np.sqrt(np.dot(v1, v1))
+    magnitude2 = np.sqrt(np.dot(v2, v2))
+    result = dotProduct / (magnitude1 * magnitude2) * 100
 
     return result
 
 
-def transposeMatrix(matrix):
-    return [list(i) for i in zip(*matrix)]
-
-
-def sumElmtMatrix(matrix):
-    sum = 0
-    for i in range(len(matrix)):
-        for j in range(len(matrix[i])):
-            sum += matrix[i][j]
-    return sum
-
-
 def normaliseSymmetricMatrix(matrix):
-    sum = sumElmtMatrix(matrix)
-    for i in range(len(matrix)):
-        for j in range(len(matrix[0])):
-            matrix[i][j] /= sum
-    return matrix
+    total_sum = np.sum(matrix)
+    return matrix / total_sum
 
 
-if __name__ == "__main__":
-    texture()
+async def texture(dataset, image):
+    image_contents = await image.read()
+    root_image = cv2.imdecode(np.fromstring(image_contents, np.uint8), cv2.IMREAD_COLOR)
+    root_image_g = cv2.cvtColor(root_image, cv2.COLOR_BGR2GRAY)
+
+    similar_images = []
+    for dataset_image in dataset:
+        dataset_contents = await dataset_image.read()
+        dataset_image = cv2.imdecode(
+            np.fromstring(dataset_contents, np.uint8), cv2.IMREAD_COLOR
+        )
+        dataset_image_g = cv2.cvtColor(dataset_image, cv2.COLOR_BGR2GRAY)
+
+        similarity = cosineSimilarityTexture(root_image_g, dataset_image_g)
+        if similarity >= 60:
+            _, buffer = cv2.imencode(".jpg", dataset_image)
+            dataset_image_base64 = base64.b64encode(buffer).decode("utf-8")
+            similar_images.append(
+                {
+                    "base64imagedata": dataset_image_base64,
+                    "similaritypercentage": similarity,
+                }
+            )
+
+    similar_images = sorted(
+        similar_images, key=lambda x: x["similaritypercentage"], reverse=True
+    )
+    return similar_images

@@ -1,106 +1,94 @@
-import os
-from flask import Flask, request, redirect, render_template, jsonify
+from fastapi import FastAPI, File, UploadFile, Form
+from typing import List
 from color import color
 from texture import texture
 
-app = Flask(__name__, static_folder="static")
-UPLOAD_FOLDER_IMAGE = "static/image"
-UPLOAD_FOLDER_DATASET = "static/dataset"
-app.config["UPLOAD_FOLDER_IMAGE"] = UPLOAD_FOLDER_IMAGE
-app.config["UPLOAD_FOLDER_DATASET"] = UPLOAD_FOLDER_DATASET
-
-if not os.path.exists(UPLOAD_FOLDER_IMAGE):
-    os.makedirs(UPLOAD_FOLDER_IMAGE)
-if not os.path.exists(UPLOAD_FOLDER_DATASET):
-    os.makedirs(UPLOAD_FOLDER_DATASET)
+app = FastAPI()
 
 
-def clearFolder(folder_path):
-    files = os.listdir(folder_path)
-
-    for file in files:
-        os.remove(os.path.join(folder_path, file))
-
-
-@app.route("/", methods=["GET"])
-def index():
-    return render_template("test.html")
-
-
-@app.route("/upload", methods=["POST"])
-def upload():
-    if request.files:
-        clearFolder(app.config["UPLOAD_FOLDER_IMAGE"])
-        clearFolder(app.config["UPLOAD_FOLDER_DATASET"])
-        image = request.files["image"]
-        dataset = request.files.getlist("dataset")
-        filename = "image.jpg"
-        image.save(os.path.join(app.config["UPLOAD_FOLDER_IMAGE"], filename))
-        i = 1
-        for file in dataset:
-            file.save(os.path.join(app.config["UPLOAD_FOLDER_DATASET"], f"data{i}.jpg"))
-            i += 1
-        return redirect("/")
+@app.post("/upload")
+async def upload_files(
+    dataset: List[UploadFile] = File(...),
+    image: UploadFile = File(...),
+    choice: str = Form(...),
+):
+    if choice == "texture":
+        return await texture(dataset, image)
+    elif choice == "color":
+        return await color(dataset, image)
 
 
-# @app.route("/image", methods=["POST"])
-# def image():
-#     if request.files:
-#         clearFolder(app.config["UPLOAD_FOLDER_IMAGE"])
-#         clearFolder(app.config["UPLOAD_FOLDER_DATASET"])
-#         image = request.files["image"]
-#         dataset = request.files.getlist("dataset")
-#         filename = "image.jpg"
-#         image.save(os.path.join(app.config["UPLOAD_FOLDER_IMAGE"], filename))
-#         i = 1
-#         for file in dataset:
-#             file.save(os.path.join(app.config["UPLOAD_FOLDER_DATASET"], f"data{i}.jpg"))
-#             i += 1
-#         return redirect("/")
+# @app.get("/")
+# def main():
+#     return HTMLResponse(
+#         """<html lang="en">
+#   <head>
+#     <meta charset="UTF-8" />
+#     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+#     <title>Tubes Bentar</title>
+#     <script>
+#       window.onload = function () {
+#         document.getElementById("form1").onsubmit = function (event) {
+#           event.preventDefault();
+
+#           var formData = new FormData(this);
+#           var startTime = performance.now();
+
+#           fetch("/upload", {
+#             method: "POST",
+#             body: formData,
+#           })
+#             .then((response) => response.json())
+#             .then((data) => {
+#               var endTime = performance.now();
+#               var timeTaken = endTime - startTime;
+
+#               var imagesContainer = document.getElementById("images");
+#               imagesContainer.innerHTML = ""; // Clear the container
+
+#               // Display the time taken
+#               var timeElement = document.createElement("p");
+#               timeElement.textContent =
+#                 "Time taken: " + Math.round(timeTaken) + " ms";
+#               imagesContainer.appendChild(timeElement);
+
+#               data.forEach((imageData) => {
+#                 var img = document.createElement("img");
+#                 img.src = `data:image/jpeg;base64,${imageData.base64imagedata}`;
+#                 imagesContainer.appendChild(img);
+
+#                 var similarityElement = document.createElement("p");
+#                 similarityElement.textContent =
+#                   "Similarity: " +
+#                   imageData.similaritypercentage.toFixed(5) +
+#                   "%";
+#                 imagesContainer.appendChild(similarityElement);
+#               });
+#             });
+#         };
+#       };
+#     </script>
+#   </head>
+#   <body>
+#     <form id="form1" enctype="multipart/form-data">
+#       <label for="dataset">Select dataset:</label>
+#       <input type="file" name="dataset" multiple />
+
+#       <label for="image">Select root image:</label>
+#       <input type="file" name="image" />
+
+#       <label for="color">Color</label>
+#       <input type="radio" name="choice" id="color" value="color" />
+
+#       <label for="texture">Texture</label>
+#       <input type="radio" name="choice" id="texture" value="texture" />
+
+#       <input type="submit" value="Submit" />
+#     </form>
+#     <div id="images"></div>
+#   </body>
+# </html>
 
 
-# @app.route("/dataset", methods=["POST"])
-# def dataset():
-#     if request.files:
-#         clearFolder(app.config["UPLOAD_FOLDER_DATASET"])
-#         dataset = request.files.getlist("dataset")
-#         i = 1
-#         for file in dataset:
-#             file.save(os.path.join(app.config["UPLOAD_FOLDER_DATASET"], f"data{i}.jpg"))
-#             i += 1
-#         return redirect("/")
-
-
-@app.route("/color", methods=["POST"])
-def colorRoute():
-    persentage = color()
-    colorResult = [
-        {"filename": f"data{i+1}", "percentage": number}
-        for i, number in enumerate(persentage)
-    ]
-    colorResult = sorted(
-        [x for x in colorResult if x["percentage"] > 60],
-        key=lambda x: x["percentage"],
-        reverse=True,
-    )
-    return jsonify(colorResult)
-
-
-@app.route("/texture", methods=["POST"])
-def textureRoute():
-    if request.method == "POST":
-        persentage = texture()
-        textureResult = [
-            {"filename": f"data{i+1}", "percentage": number}
-            for i, number in enumerate(persentage)
-        ]
-        textureResult = sorted(
-            [x for x in textureResult if x["percentage"] > 60],
-            key=lambda x: x["percentage"],
-            reverse=True,
-        )
-        return jsonify(textureResult)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# """
+#     )
