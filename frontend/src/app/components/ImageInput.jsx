@@ -70,7 +70,24 @@ const ImageInput = () => {
   };
 
   const handleToggle = () => {
-    setToggleState(!toggleState);
+    const newToggleState = !toggleState;
+    setToggleState(newToggleState);
+
+    if (newToggleState) {
+      handleTextureMode();
+    } else {
+      handleColorMode();
+    }
+  };
+
+  const handleColorMode = () => {
+    setSearchInitiated(false);
+    console.log("Color mode is active."); // ubah ke color
+  };
+
+  const handleTextureMode = () => {
+    setSearchInitiated(true);
+    console.log("Texture mode is active."); // ubah ke texture
   };
 
   const handleOpenCamera = () => {
@@ -105,7 +122,7 @@ const ImageInput = () => {
         imageUrls.push(imageUrl);
       }
 
-      setSelectedImage(imageUrls); 
+      setSelectedImage(imageUrls);
     }
   };
 
@@ -169,7 +186,7 @@ const ImageInput = () => {
           {showCamera && (
             <div
               style={slideDownAnimation}
-              className="top-0 fixed rounded-b-3xl w-[700px] h-[400px] z-50 bg-gray-300 bg-opacity-75 flex items-center justify-center"
+              className="top-0 fixed rounded-b-3xl w-[700px] h-[400px] z-50 bg-[#181818] bg-opacity-75 flex items-center justify-center"
             >
               <div className="camera-modal">
                 <div className="timer">{timer}</div>
@@ -179,7 +196,7 @@ const ImageInput = () => {
                   screenshotFormat="image/jpeg"
                   videoConstraints={videoConstraints}
                   style={mirroredStyle}
-                  className="webcam p-8 rounded-2xl bg-[#373737] bg-opacity-30"
+                  className="webcam p-4 rounded-2xl bg-[#373737] bg-opacity-30"
                 />
                 <button
                   onClick={() => {
@@ -268,6 +285,15 @@ const ImageInput = () => {
                 </span>
               </button>
             </div>
+            <div>
+              {searchInitiated ? (
+                // texture
+                <div>Texture Options Here</div>
+              ) : (
+                // color
+                <div>Color Options Here</div>
+              )}
+            </div>
             <button
               className="bg-[#373737] font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
               onClick={() => handleSearch(selectedImage)}
@@ -276,7 +302,7 @@ const ImageInput = () => {
             </button>
             <button
               className="h-9 mt-2 flex items-center justify-center space-x-2 bg-[#373737] text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
-              onClick={() => fileInputRefMultiple.current.click()} 
+              onClick={() => fileInputRefMultiple.current.click()}
             >
               <ArrowUpTrayIcon className="h-5 w-5 text-white" />
               <span className="font-bold">| Upload Dataset</span>
@@ -289,14 +315,13 @@ const ImageInput = () => {
               onChange={handleFileSelected}
               style={{ display: "none" }}
             />
-
             <input
               type="file"
               accept="image/*"
               ref={fileInputRefMultiple}
               onChange={handleDatasetUpload}
+              webkitdirectory=""
               style={{ display: "none" }}
-              multiple
             />
           </div>
           {searchError && (
