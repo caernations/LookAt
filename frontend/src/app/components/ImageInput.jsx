@@ -288,10 +288,10 @@ const ImageInput = () => {
             <div>
               {searchInitiated ? (
                 // texture
-                <div>Texture Options Here</div>
+                <div>Texture</div>
               ) : (
                 // color
-                <div>Color Options Here</div>
+                <div>Color</div>
               )}
             </div>
             <button
