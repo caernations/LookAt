@@ -66,7 +66,7 @@ async def texture(dataset, image):
         )
         dataset_image_hsv = cv2.cvtColor(dataset_image, cv2.COLOR_BGR2GRAY)
 
-        similarity = cosineSimilarityTexture(root_image, dataset_image_hsv)
+        similarity = cosineSimilarityTexture(root_image_g, dataset_image_hsv)
         if similarity >= 60:
             _, buffer = cv2.imencode(".jpg", dataset_image)
             dataset_image_base64 = base64.b64encode(buffer).decode("utf-8")
