@@ -1,56 +1,22 @@
-import base64
-import cv2
-import numpy as np
-from fastapi import FastAPI, File, UploadFile
-from scipy.spatial import distance
+from fastapi import FastAPI, File, UploadFile, Form
 from typing import List
 from fastapi.responses import HTMLResponse
+from color import color
 
 app = FastAPI()
-
-
-def calculate_similarity(hist1, hist2):
-    hist1 = hist1 / (sum(hist1) + 1e-10)
-    hist2 = hist2 / (sum(hist2) + 1e-10)
-    similarity = 1 - distance.cosine(hist1.flatten(), hist2.flatten())
-    return similarity * 100
 
 
 @app.post("/upload")
 async def upload_files(
     dataset: List[UploadFile] = File(...),
     image: UploadFile = File(...),
+    choice: str = Form(...),
 ):
-    image_contents = await image.read()
-    root_image = cv2.imdecode(np.fromstring(image_contents, np.uint8), cv2.IMREAD_COLOR)
-    root_image_hsv = cv2.cvtColor(root_image, cv2.COLOR_BGR2HSV)
-    root_histogram = cv2.calcHist(
-        [root_image_hsv], [0, 1], None, [180, 256], [0, 180, 0, 256]
-    )
-
-    similar_images = []
-    for dataset_image in dataset:
-        dataset_contents = await dataset_image.read()
-        dataset_image = cv2.imdecode(
-            np.fromstring(dataset_contents, np.uint8), cv2.IMREAD_COLOR
-        )
-        dataset_image_hsv = cv2.cvtColor(dataset_image, cv2.COLOR_BGR2HSV)
-        dataset_histogram = cv2.calcHist(
-            [dataset_image_hsv], [0, 1], None, [180, 256], [0, 180, 0, 256]
-        )
-
-        similarity = calculate_similarity(root_histogram, dataset_histogram)
-
-        if similarity >= 60:
-            _, buffer = cv2.imencode(".jpg", dataset_image)
-            dataset_image_base64 = base64.b64encode(buffer).decode("utf-8")
-            similar_images.append(
-                {
-                    "base64imagedata": dataset_image_base64,
-                    "similaritypercentage": similarity,
-                }
-            )
-    return similar_images
+    if choice == "texture":
+        # return await texture(dataset, image)
+        pass
+    elif choice == "color":
+        return await color(dataset, image)
 
 
 @app.get("/")
@@ -84,7 +50,7 @@ def main():
               // Display the time taken
               var timeElement = document.createElement("p");
               timeElement.textContent =
-                "Time taken: " + timeTaken.toFixed(3) + " ms";
+                "Time taken: " + Math.round(timeTaken) + " ms";
               imagesContainer.appendChild(timeElement);
 
               data.forEach((imageData) => {
@@ -112,11 +78,18 @@ def main():
       <label for="image">Select root image:</label>
       <input type="file" name="image" />
 
+      <label for="color">Color</label>
+      <input type="radio" name="choice" id="color" value="color" />
+
+      <label for="texture">Texture</label>
+      <input type="radio" name="choice" id="texture" value="texture" />
+
       <input type="submit" value="Submit" />
     </form>
     <div id="images"></div>
   </body>
 </html>
+
 
 """
     )
