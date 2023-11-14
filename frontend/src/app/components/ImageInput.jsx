@@ -97,10 +97,13 @@ const ImageInput = () => {
     setShowResult(false);
     setError("");
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-
+  
     if (imageSrc) {
       setSearchClicked(true);
-      setSearchInitiated(true);
+      if (toggleState) {
+      } else {
+      }
+      setSearchInitiated(toggleState);
       setImagePath(imageSrc);
       setShowResult(true);
     } else {
@@ -108,7 +111,7 @@ const ImageInput = () => {
       setSearchClicked(false);
     }
   };
-
+  
   const handleDatasetUpload = (e) => {
     const files = e.target.files;
     const imageUrls = [];
