@@ -6,15 +6,11 @@ from scipy.spatial import distance
 def GLCM(image):
     height, width = image.shape
     frameworkMatrix = np.zeros((256, 256), dtype=np.uint64)
-    for i in range(height):
-        for j in range(width - 1):
-            idxI = image[i, j]
-            idxJ = image[i, j + 1]
-            frameworkMatrix[idxI, idxJ] += 1
+    idxI = image[:, :width - 1]
+    idxJ = image[:, 1:]
+    np.add.at(frameworkMatrix, (idxI, idxJ), 1)
     transposeFramework = frameworkMatrix.T
-
     frameworkMatrix += transposeFramework
-
     glcm = normaliseSymmetricMatrix(frameworkMatrix)
     return glcm
 
@@ -24,14 +20,15 @@ def metric(image):
     homogeneity = 0
     dissimilarity = 0
     asm = 0
-    energy = 0
     glcm = GLCM(image)
-    for i in range(255):
-        for j in range(255):
-            contrast += glcm[i, j] * ((i - j) ** 2)
-            homogeneity += (glcm[i, j]) / (1 + ((i - j) ** 2))
-            dissimilarity += glcm[i, j] * abs((i - j))
-            asm += (glcm[i, j]) ** 2
+
+    i, j = np.indices((255, 255))
+    
+    contrast = np.sum(glcm * (i - j) ** 2)
+    homogeneity = np.sum(glcm / (1 + (i - j) ** 2))
+    dissimilarity = np.sum(glcm * np.abs(i - j))
+    asm = np.sum(glcm ** 2)
+    
     energy = np.sqrt(asm)
     vektor = [contrast, homogeneity, dissimilarity, asm, energy]
     return vektor
