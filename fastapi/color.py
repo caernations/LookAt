@@ -1,7 +1,6 @@
 import base64
 import cv2
 import numpy as np
-from scipy.spatial import distance
 
 
 def calculate_similarity(hist1, hist2):
