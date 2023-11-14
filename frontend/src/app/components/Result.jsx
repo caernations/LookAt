@@ -12,30 +12,37 @@ import {
 const imageResults = [
   {
     imagePath: "../../images/image5.png",
+    percentage: "100%",
     alt: "Result",
   },
   {
     imagePath: "../../images/image5.png",
+    percentage: "87%",
     alt: "Result",
   },
   {
     imagePath: "../../images/image5.png",
+    percentage: "80%",
     alt: "Result",
   },
   {
     imagePath: "../../images/image5.png",
+    percentage: "1%",
     alt: "Result",
   },
   {
     imagePath: "../../images/image5.png",
+    percentage: "0%",
     alt: "Result",
   },
   {
     imagePath: "../../images/image5.png",
+    percentage: "70%",
     alt: "Result",
   },
   {
     imagePath: "../../images/image5.png",
+    percentage: "100%",
     alt: "Result",
   },
 ];
@@ -54,7 +61,6 @@ const styles = StyleSheet.create({
     height: "auto",
   },
 });
-
 
 const MyDocument = ({ images }) => (
   <Document>
@@ -90,7 +96,11 @@ const Result = ({ searchInitiated }) => {
     saveAs(blob, "download.pdf");
   };
 
-  const gridHeight = '422px';
+  const sortedImageResults = [...imageResults].sort((a, b) => {
+    return parseInt(b.percentage, 10) - parseInt(a.percentage, 10);
+  });
+
+  const gridHeight = "422px";
 
   return (
     <div className="bg-[#373737] bg-opacity-70 px-8 pb-8 mt-20 mx-80 rounded-t-3xl flex flex-col items-center justify-center">
@@ -100,16 +110,28 @@ const Result = ({ searchInitiated }) => {
         className="h-6 mb-4 cursor-pointer"
         onClick={downloadPDF}
       />
-      <div style={{ minHeight: gridHeight }}  className="grid grid-cols-3 gap-x-12 gap-y-4">
+      <div
+        style={{ minHeight: gridHeight }}
+        className="grid grid-cols-3 gap-x-12 gap-y-4"
+      >
         {searchInitiated ? (
-          selectedResults.map((item, index) => (
-            <img
-              key={index}
-              src={item.imagePath}
-              alt={item.alt}
-              className="aspect-square h-48 rounded-xl"
-            />
-          ))
+          sortedImageResults
+            .slice(startIndex, startIndex + ResultsPerPage)
+            .map((item, index) => (
+              <div
+                key={index}
+                className="imageHover relative aspect-square h-48 rounded-2xl overflow-hidden"
+              >
+                <img
+                  src={item.imagePath}
+                  alt={item.alt}
+                  className="rounded-2xl w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-40 font-bold rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-white text-xl bg-black p-2 rounded-xl">{item.percentage}</span>
+                </div>
+              </div>
+            ))
         ) : (
           <div className="bg-blue-100 aspect-square h-48"></div>
         )}
