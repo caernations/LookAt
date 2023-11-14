@@ -7,6 +7,7 @@ import {
   CameraIcon,
   XCircleIcon,
   FolderOpenIcon,
+  ArrowUpTrayIcon,
 } from "@heroicons/react/24/solid";
 
 const ImageInput = () => {
@@ -23,6 +24,9 @@ const ImageInput = () => {
   const [searchError, setError] = useState("");
   const [timer, setTimer] = useState(0);
   const intervalRef = useRef(null);
+  const resultsRef = useRef(null);
+  const fileInputRefSingle = useRef(null);
+  const fileInputRefMultiple = useRef(null);
 
   const handleImageUpload = (event) => {
     fileInputRef.current.click();
@@ -77,6 +81,7 @@ const ImageInput = () => {
     setSelectedImage(imageSrc);
     setShowResult(false);
     setError("");
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
 
     if (imageSrc) {
       setSearchClicked(true);
@@ -86,6 +91,21 @@ const ImageInput = () => {
     } else {
       setError("Please upload an image first.");
       setSearchClicked(false);
+    }
+  };
+
+  const handleDatasetUpload = (e) => {
+    const files = e.target.files;
+    const imageUrls = [];
+
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const imageUrl = URL.createObjectURL(file);
+        imageUrls.push(imageUrl);
+      }
+
+      setSelectedImage(imageUrls); 
     }
   };
 
@@ -100,13 +120,6 @@ const ImageInput = () => {
 
   const slideDownAnimation = {
     animationName: "slideDown",
-    animationTimingFunction: "ease-out",
-    animationDuration: "0.5s",
-    animationFillMode: "forwards",
-  };
-
-  const slideUpAnimation = {
-    animationName: "slideUp",
     animationTimingFunction: "ease-out",
     animationDuration: "0.5s",
     animationFillMode: "forwards",
@@ -190,7 +203,7 @@ const ImageInput = () => {
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
         >
-          <div className="md:col-span-3 bg-[#EEEEEE] h-[300px] md:h-[300px] w-full flex items-center justify-center relative">
+          <div className="md:col-span-3 bg-[#373737] h-[300px] md:h-[300px] w-full flex items-center justify-center relative">
             {selectedImage ? (
               <>
                 <img src={selectedImage} alt="Selected" className="h-40" />
@@ -203,14 +216,14 @@ const ImageInput = () => {
               </>
             ) : (
               <PhotoIcon
-                onClick={handleImageUpload}
+                onClick={() => fileInputRefSingle.current.click()}
                 className="h-20 cursor-pointer"
               />
             )}
           </div>
-          <div className="md:col-span-2 bg-[#EEEEEE] h-[300px] md:h-[300px] w-full flex flex-col items-center justify-center">
+          <div className="rounded-3xl md:col-span-2 bg-[#181818] h-[300px] md:h-[300px] w-full flex flex-col items-center justify-center">
             <button
-              className="camera-button h-9 flex items-center justify-center space-x-2 bg-[#181818] bg-opacity-30 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
+              className="camera-button h-9 flex items-center justify-center space-x-2 bg-[#373737] text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
               onClick={handleOpenCamera}
             >
               <CameraIcon className="h-5 w-5 text-white" />
@@ -218,17 +231,18 @@ const ImageInput = () => {
             </button>
 
             <button
-              className="h-9 mt-2 flex items-center justify-center space-x-2 bg-[#181818] bg-opacity-30 text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
-              onClick={handleImageUpload}
+              className="h-9 mt-2 flex items-center justify-center space-x-2 bg-[#373737] text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
+              onClick={() => fileInputRefSingle.current.click()}
             >
               <FolderOpenIcon className="h-5 w-5 text-white" />
               <span className="font-bold">| Choose From File</span>
             </button>
+
             <div className="flex items-center justify-center mb-4 mt-4">
               <button
                 onClick={handleToggle}
                 className={`relative w-36 h-9 flex items-center rounded-full p-1 ${
-                  toggleState ? "bg-gray-300" : "bg-gray-300"
+                  toggleState ? "bg-[#373737]" : "bg-[#373737]"
                 }`}
               >
                 <span
@@ -255,17 +269,34 @@ const ImageInput = () => {
               </button>
             </div>
             <button
-              className="bg-[#181818] bg-opacity-30 font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
+              className="bg-[#373737] font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
               onClick={() => handleSearch(selectedImage)}
             >
               Search
             </button>
+            <button
+              className="h-9 mt-2 flex items-center justify-center space-x-2 bg-[#373737] text-white px-4 py-2 rounded-full shadow-lg hover:scale-105 hover:bg-opacity-50 transition-colors duration-200"
+              onClick={() => fileInputRefMultiple.current.click()} 
+            >
+              <ArrowUpTrayIcon className="h-5 w-5 text-white" />
+              <span className="font-bold">| Upload Dataset</span>
+            </button>
+
             <input
               type="file"
               accept="image/*"
-              ref={fileInputRef}
+              ref={fileInputRefSingle}
               onChange={handleFileSelected}
               style={{ display: "none" }}
+            />
+
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRefMultiple}
+              onChange={handleDatasetUpload}
+              style={{ display: "none" }}
+              multiple
             />
           </div>
           {searchError && (
@@ -275,8 +306,9 @@ const ImageInput = () => {
           )}
         </div>
         <div
+          ref={resultsRef}
           className={`transition-transform duration-1000 ${
-            showResult ? "slide-up" : "translate-y-full"
+            showResult ? "translate-y-0" : "translate-y-full"
           }`}
           style={{
             position: "relative",

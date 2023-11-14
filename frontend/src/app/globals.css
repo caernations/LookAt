@@ -42,7 +42,7 @@ body {
 @keyframes slideDown {
   0% {
     transform: translateY(-100%);
-    opacity: 0;
+    opacity: 1;
   }
   100% {
     transform: translateY(0);
@@ -57,7 +57,7 @@ body {
 @keyframes slideUp {
   0% {
     transform: translateY(0);
-    opacity: 0;
+    opacity: 1;
   }
   100% {
     transform: translateY(-100%);
@@ -67,4 +67,33 @@ body {
 
 .slide-up {
   animation: slideUp 0.5s ease-out forwards;
+}
+@keyframes slideDownResult {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}
+
+.slide-down-result {
+  animation: slideDownResult 2.5s ease-out forwards;
+}
+
+@keyframes slideUpResult {
+  0% {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-up-result {
+  animation: slideUpResult 0.5s ease-out forwards;
 }

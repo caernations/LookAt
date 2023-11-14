@@ -6,31 +6,31 @@ import {
 
 const usData = [
   {
+    name: "Foto Bareng",
+    nim: "13522145",
+    email: "farrel.saskoro@gmail.com",
+    image: "../../images/yasmin32.png",
+    alt: "Natha",
+  },
+  {
     name: "Satriadhikara Panji Yudhistira",
     nim: "13522125",
     email: "satriadhikara@gmail.com",
-    image: "../../images/image1.jpg",
+    image: "../../images/panji32.png",
     alt: "Panji",
   },
   {
     name: "Yasmin Farisah Salma",
     nim: "#13522140",
     email: "yasminfsalma@gmail.com",
-    image: "../../images/image2.jpg",
+    image: "../../images/yasmin32.png",
     alt: "Yasmin",
   },
   {
     name: "Farrel Natha Saskoro",
     nim: "13522145",
     email: "farrel.saskoro@gmail.com",
-    image: "../../images/image3.jpg",
-    alt: "Natha",
-  },
-  {
-    name: "Farrel Natha Saskoro",
-    nim: "13522145",
-    email: "farrel.saskoro@gmail.com",
-    image: "../../images/image4.jpg",
+    image: "../../images/natha32.png",
     alt: "Natha",
   },
 ];
@@ -48,9 +48,9 @@ const AboutUs = () => {
         <h1 className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
           ABOUT US
         </h1>
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-9 gap-4 md:gap-24">
+        <div className="mt-16 mx-8 grid grid-cols-1 md:grid-cols-9 gap-4 md:gap-16">
           <div className="md:col-span-5 p-4">
-            <p className="text-justify">
+            <p className="text-justify bg-[#373737] p-8 rounded-3xl bg-opacity-30">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit
               amet dolor eleifend, elementum diam vel, bibendum odio. Morbi
               eleifend ex sit amet consequat suscipit. Nullam accumsan nulla
@@ -64,17 +64,16 @@ const AboutUs = () => {
               libero auctor at. Aenean cursus blandit tellus eu lobortis.
               Aliquam ornare diam in ornare vulputate. Donec ultrices auctor
               orci, vitae tincidunt nulla vestibulum non. Cras suscipit lacus
-              sed rutrum facilisis. Nunc facilisis ante vehicula, fringilla
-              mauris a, imperdiet mauris.
+              sed rutrum facilisis.
             </p>
           </div>
           <div className="md:col-span-4 relative">
             <img
               src={usData[current].image}
               alt={usData[current].alt}
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-cover rounded-2xl"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-500 to-green-700 opacity-0 hover:opacity-90 transition-opacity duration-300 flex items-center justify-start pl-4">
+            <div className="rounded-2xl absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-900 to-black opacity-0 hover:opacity-90 transition-opacity duration-300 flex items-center justify-start pl-4">
               <p className="text-white text-xl font-bold">
                 {usData[current].name}
               </p>
