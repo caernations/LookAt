@@ -82,12 +82,10 @@ const ImageInput = () => {
 
   const handleColorMode = () => {
     setSearchInitiated(false);
-    console.log("Color mode is active."); // ubah ke color
   };
 
   const handleTextureMode = () => {
     setSearchInitiated(true);
-    console.log("Texture mode is active."); // ubah ke texture
   };
 
   const handleOpenCamera = () => {
