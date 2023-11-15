@@ -1,5 +1,4 @@
 from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from color import color
@@ -33,11 +32,6 @@ async def upload_files(
         return await texture(dataset, image)
     elif choice == "color":
         return await color(dataset, image)
-
-
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
-    return FileResponse("index.html")
 
 
 if __name__ == "__main__":
