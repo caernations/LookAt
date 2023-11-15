@@ -76,7 +76,7 @@ const ResultsPerPage = 6;
 const Result = ({ searchInitiated }) => {
   const imagePaths = imageResults.map((data) => data.imagePath);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(imageResults.length / ResultsPerPage);
+  const totalPages = imageResults.length <= ResultsPerPage ? 1 : Math.ceil(imageResults.length / ResultsPerPage);
   const pageNumbers = Array.from(
     { length: totalPages },
     (_, index) => index + 1
