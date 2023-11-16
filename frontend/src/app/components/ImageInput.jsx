@@ -1,5 +1,11 @@
 "use client";
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  useReducer,
+} from "react";
 import Webcam from "react-webcam";
 import Result from "./Result";
 import {
@@ -9,6 +15,31 @@ import {
   FolderOpenIcon,
   ArrowUpTrayIcon,
 } from "@heroicons/react/24/solid";
+
+const ACTIONS = {
+  SET_RESULTS: "set-results",
+  SET_ERROR: "set-error",
+  SET_LOADING: "set-loading",
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case ACTIONS.SET_RESULTS:
+      return { ...state, results: action.payload, error: null, loading: false };
+    case ACTIONS.SET_ERROR:
+      return { ...state, error: action.payload, results: [], loading: false };
+    case ACTIONS.SET_LOADING:
+      return { ...state, loading: true };
+    default:
+      return state;
+  }
+}
+
+const initialState = {
+  results: [],
+  error: null,
+  loading: false,
+};
 
 const ImageInput = () => {
   const fileInputRef = useRef(null);
@@ -27,11 +58,22 @@ const ImageInput = () => {
   const resultsRef = useRef(null);
   const fileInputRefSingle = useRef(null);
   const fileInputRefMultiple = useRef(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [selectedDataset, setSelectedDataset] = useState(null);
 
   const handleImageUpload = (event) => {
     fileInputRef.current.click();
     if (event.target.files && event.target.files[0]) {
       handleSearch(event.target.files[0]);
+    }
+  };
+
+  const handleSearchClick = (event) => {
+    event.preventDefault();
+    if (selectedImage) {
+      handleSearch(selectedImage); 
+    } else {
+      dispatch({ type: ACTIONS.SET_ERROR, payload: "No image selected." });
     }
   };
 
@@ -92,40 +134,46 @@ const ImageInput = () => {
     setShowCamera(true);
   };
 
-  const handleSearch = (imageSrc) => {
-    setSelectedImage(imageSrc);
-    setShowResult(false);
-    setError("");
-    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  const handleSearch = (imageFile) => {
+    dispatch({ type: ACTIONS.SET_LOADING });
   
-    if (imageSrc) {
-      setSearchClicked(true);
-      if (toggleState) {
-      } else {
-      }
-      setSearchInitiated(toggleState);
-      setImagePath(imageSrc);
-      setShowResult(true);
-    } else {
-      setError("Please upload an image first.");
-      setSearchClicked(false);
+    const formData = new FormData();
+  
+    formData.append("image", imageFile);
+  
+    if (selectedDataset) {
+      Array.from(selectedDataset).forEach((file, index) => {
+        formData.append(`dataset_${index}`, file);
+      });
     }
-  };
   
+    formData.append("choice", toggleState ? "texture" : "color");
+  
+    fetch("http://127.0.0.1:8000/upload", {
+      method: "POST",
+      body: formData,
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      dispatch({ type: ACTIONS.SET_RESULTS, payload: data });
+    })
+    .catch((error) => {
+      dispatch({ type: ACTIONS.SET_ERROR, payload: error.message });
+    });
+  };
+
   const handleDatasetUpload = (e) => {
     const files = e.target.files;
-    const imageUrls = [];
-
     if (files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const imageUrl = URL.createObjectURL(file);
-        imageUrls.push(imageUrl);
-      }
-
-      setSelectedImage(imageUrls);
+      setSelectedDataset(files); 
     }
   };
+  
 
   const mirroredStyle = {
     transform: "scaleX(-1)",
@@ -297,7 +345,7 @@ const ImageInput = () => {
             </div>
             <button
               className="bg-[#373737] font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
-              onClick={() => handleSearch(selectedImage)}
+              onClick={handleSearchClick}
             >
               Search
             </button>
@@ -344,7 +392,18 @@ const ImageInput = () => {
             zIndex: 10,
           }}
         >
-          {searchClicked && <Result searchInitiated={searchInitiated} />}
+          {state.loading && <p>Loading...</p>}
+          {state.error && <p>Error: {state.error}</p>}
+
+          {state.results.map((imageData, index) => (
+            <div key={index} className="result-item">
+              <img
+                src={`data:image/jpeg;base64,${imageData.base64imagedata}`}
+                alt="Result"
+              />
+              <p>Similarity: {imageData.similaritypercentage.toFixed(3)}%</p>
+            </div>
+          ))}
         </div>
       </section>
     </>
