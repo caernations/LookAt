@@ -35,7 +35,7 @@ const test = () => {
 
             var similarityElement = document.createElement("p");
             similarityElement.textContent =
-              "Similarity: " + imageData.similaritypercentage.toFixed(5) + "%";
+              "Similarity: " + imageData.similaritypercentage.toFixed(3) + "%";
             imagesContainer.appendChild(similarityElement);
           });
         });
