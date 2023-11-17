@@ -9,6 +9,8 @@ import {
   ChevronUpIcon,
 } from "@heroicons/react/24/solid";
 
+
+
 const imageResults = [
   {
     imagePath: "../../images/image5.png",
@@ -88,6 +90,7 @@ const Result = ({ data }) => {
     { length: totalPages },
     (_, index) => index + 1
   );
+  const [customFileName, setCustomFileName] = useState('');
 
   const startIndex = (currentPage - 1) * ResultsPerPage;
   const selectedResults = imageResults.slice(
@@ -100,7 +103,7 @@ const Result = ({ data }) => {
     const asPdf = pdf();
     asPdf.updateContainer(doc);
     const blob = await asPdf.toBlob();
-    saveAs(blob, "download.pdf");
+    saveAs(blob, `${customFileName || 'download'}.pdf`);
   };
 
   const sortedImageResults = [...imageResults].sort((a, b) => {
@@ -113,6 +116,13 @@ const Result = ({ data }) => {
     <div className="bg-[#373737] bg-opacity-70 px-8 pb-8 mt-20 mx-80 rounded-t-3xl flex flex-col items-center justify-center">
       <MinusIcon className="h-12 text-black w-12 cursor-pointer hover:text-gray-500" />
       <h2 className="text-white text-lg">Result:</h2>
+      <input
+        type="text"
+        value={customFileName}
+        onChange={(e) => setCustomFileName(e.target.value)}
+        placeholder="Enter file name"
+        className="filename-input text-black bg-[#373737] bg-opacity-70 rounded-2xl px-2"
+      />
       <FolderArrowDownIcon
         className="h-6 mb-4 cursor-pointer"
         onClick={downloadPDF}
