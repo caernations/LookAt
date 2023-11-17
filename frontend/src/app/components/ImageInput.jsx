@@ -60,6 +60,11 @@ const ImageInput = () => {
   const fileInputRefMultiple = useRef(null);
   const [state, dispatch] = useReducer(reducer, initialState);
   const [selectedDataset, setSelectedDataset] = useState(null);
+  const [data, setData] = useState(null);
+
+  const urlImage = (image) => {
+    return URL.createObjectURL(image);
+  };
 
   const handleImageUpload = (event) => {
     fileInputRef.current.click();
@@ -71,7 +76,8 @@ const ImageInput = () => {
   const handleSearchClick = (event) => {
     event.preventDefault();
     if (selectedImage) {
-      handleSearch(selectedImage); 
+      handleSearch(selectedImage);
+      setSearchClicked(true);
     } else {
       dispatch({ type: ACTIONS.SET_ERROR, payload: "No image selected." });
     }
@@ -80,8 +86,8 @@ const ImageInput = () => {
   const handleFileSelected = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      // const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(file);
     }
   };
 
@@ -106,8 +112,8 @@ const ImageInput = () => {
     const file = e.dataTransfer.files[0];
 
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      // const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(file);
     }
   };
 
@@ -123,7 +129,7 @@ const ImageInput = () => {
   };
 
   const handleColorMode = () => {
-    setSearchInitiated(false);
+    setSearchInitiated(true);
   };
 
   const handleTextureMode = () => {
@@ -136,44 +142,47 @@ const ImageInput = () => {
 
   const handleSearch = (imageFile) => {
     dispatch({ type: ACTIONS.SET_LOADING });
-  
+
     const formData = new FormData();
-  
-    formData.append("image", imageFile);
-  
+
+    formData.append("image", selectedImage);
+    console.log(formData.getAll("image"));
+
     if (selectedDataset) {
       Array.from(selectedDataset).forEach((file, index) => {
-        formData.append(`dataset_${index}`, file);
+        formData.append("dataset", file);
       });
     }
-  
+    console.log(formData.getAll("dataset"));
+
     formData.append("choice", toggleState ? "texture" : "color");
-  
+
     fetch("http://127.0.0.1:8000/upload", {
       method: "POST",
       body: formData,
     })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      dispatch({ type: ACTIONS.SET_RESULTS, payload: data });
-    })
-    .catch((error) => {
-      dispatch({ type: ACTIONS.SET_ERROR, payload: error.message });
-    });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Store data in state
+        setData(data);
+        dispatch({ type: ACTIONS.SET_RESULTS, payload: data });
+      })
+      .catch((error) => {
+        dispatch({ type: ACTIONS.SET_ERROR, payload: error.message });
+      });
   };
 
   const handleDatasetUpload = (e) => {
     const files = e.target.files;
     if (files.length > 0) {
-      setSelectedDataset(files); 
+      setSelectedDataset(files);
     }
   };
-  
 
   const mirroredStyle = {
     transform: "scaleX(-1)",
@@ -272,7 +281,11 @@ const ImageInput = () => {
           <div className="md:col-span-3 bg-[#373737] h-[300px] md:h-[300px] w-full flex items-center justify-center relative">
             {selectedImage ? (
               <>
-                <img src={selectedImage} alt="Selected" className="h-40" />
+                <img
+                  src={urlImage(selectedImage)}
+                  alt="Selected"
+                  className="h-40"
+                />
                 <button
                   onClick={handleDeleteImage}
                   className="absolute bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
@@ -371,6 +384,7 @@ const ImageInput = () => {
               onChange={handleDatasetUpload}
               webkitdirectory=""
               style={{ display: "none" }}
+              multiple
             />
           </div>
           {searchError && (
@@ -395,7 +409,7 @@ const ImageInput = () => {
           {state.loading && <p>Loading...</p>}
           {state.error && <p>Error: {state.error}</p>}
 
-          {state.results.map((imageData, index) => (
+          {/* {state.results.map((imageData, index) => (
             <div key={index} className="result-item">
               <img
                 src={`data:image/jpeg;base64,${imageData.base64imagedata}`}
@@ -403,7 +417,22 @@ const ImageInput = () => {
               />
               <p>Similarity: {imageData.similaritypercentage.toFixed(3)}%</p>
             </div>
-          ))}
+          ))} */}
+        </div>
+        <div
+          ref={resultsRef}
+          className={`transition-transform duration-1000 ${
+            showResult ? "translate-y-0" : "translate-y-full"
+          }`}
+          style={{
+            position: "relative",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+          }}
+        >
+          {searchClicked && <Result data={data} />}
         </div>
       </section>
     </>

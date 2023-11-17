@@ -65,18 +65,24 @@ const styles = StyleSheet.create({
 const MyDocument = ({ images }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      {images.map((imagePath, index) => (
-        <Image key={index} src={imagePath} style={styles.image} />
+      {images.map((item, index) => (
+        <Image
+          key={index}
+          src={`data:image/jpeg;base64,${item.base64imagedata}`}
+          style={styles.image}
+        />
       ))}
     </Page>
   </Document>
 );
 
 const ResultsPerPage = 6;
-const Result = ({ searchInitiated }) => {
-  const imagePaths = imageResults.map((data) => data.imagePath);
+const Result = ({ data }) => {
+  console.log(data);
+  // const testData = data.map((data) => data.imagePath);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = imageResults.length <= ResultsPerPage ? 1 : Math.ceil(imageResults.length / ResultsPerPage);
+  const totalPages =
+    data.length <= ResultsPerPage ? 1 : Math.ceil(data.length / ResultsPerPage);
   const pageNumbers = Array.from(
     { length: totalPages },
     (_, index) => index + 1
@@ -89,7 +95,7 @@ const Result = ({ searchInitiated }) => {
   );
 
   const downloadPDF = async () => {
-    const doc = <MyDocument images={imagePaths} />;
+    const doc = <MyDocument images={data} />;
     const asPdf = pdf();
     asPdf.updateContainer(doc);
     const blob = await asPdf.toBlob();
@@ -114,8 +120,8 @@ const Result = ({ searchInitiated }) => {
         style={{ minHeight: gridHeight }}
         className="grid grid-cols-3 gap-x-12 gap-y-4"
       >
-        {searchInitiated ? (
-          sortedImageResults
+        {data ? (
+          data
             .slice(startIndex, startIndex + ResultsPerPage)
             .map((item, index) => (
               <div
@@ -123,17 +129,21 @@ const Result = ({ searchInitiated }) => {
                 className="imageHover relative aspect-square h-48 rounded-2xl overflow-hidden"
               >
                 <img
-                  src={item.imagePath}
-                  alt={item.alt}
+                  src={`data:image/jpeg;base64,${item.base64imagedata}`}
+                  // alt={item.alt}
                   className="rounded-2xl w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-40 font-bold rounded-xl opacity-0 hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-white text-xl bg-black p-2 rounded-xl">{item.percentage}</span>
+                  <span className="text-white text-xl bg-black p-2 rounded-xl">
+                    {item.similaritypercentage.toFixed(4)}
+                  </span>
                 </div>
               </div>
             ))
         ) : (
-          <div className="bg-blue-100 aspect-square h-48"></div>
+          <div className="flex justify-center items-center">
+            <ChevronUpIcon className="h-12 text-black w-12 cursor-pointer hover:text-gray-500" />
+          </div>
         )}
       </div>
       <div className="flex justify-center space-x-2 mt-4">
