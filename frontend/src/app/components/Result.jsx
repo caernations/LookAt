@@ -79,10 +79,11 @@ const MyDocument = ({ images }) => (
 const ResultsPerPage = 6;
 const Result = ({ data }) => {
   console.log(data);
-  // const testData = data.map((data) => data.imagePath);
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages =
-    data.length <= ResultsPerPage ? 1 : Math.ceil(data.length / ResultsPerPage);
+    data && data.length <= ResultsPerPage
+      ? 1
+      : Math.ceil(data.length / ResultsPerPage);
   const pageNumbers = Array.from(
     { length: totalPages },
     (_, index) => index + 1

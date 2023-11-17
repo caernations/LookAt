@@ -432,7 +432,7 @@ const ImageInput = () => {
             zIndex: 10,
           }}
         >
-          {searchClicked && <Result data={data} />}
+          {searchClicked && data && <Result data={data} />}
         </div>
       </section>
     </>
