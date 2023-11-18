@@ -1,28 +1,54 @@
 # Algeo02-22125
 
+## How To Run
+
+Run both of the frontend and backend
+
 ## Backend
 
-Setup virtual environment
+Go to 'backend' directory
 
+```bash
+cd backend
 ```
+
+### - Setup Virtual Environtmet
+
+Install venv
+
+```bash
+pip install venv
+```
+
+Make venv
+
+```bash
 virtualenv venv
 ```
 
-Aktivasi venv
+Activate venv
 
-```
-source ./venv/Scripts/activate  # Windows
-source venv/bin/activate        # WSL / Linux / Mac
-```
-
-Deaktivasi venv
-
-```
-deactivate
+```bash
+source venv/Scripts/activate  # Windows (bash)
+source venv/bin/activate      # WSL / Linux / Mac
 ```
 
-Install komponen-komponen di requirement.txt
+### - Install Dependencies
 
-```
+Install the required dependencies
+
+```bash
 pip install -r requirements.txt
+```
+
+### - Run
+
+```bash
+python app.py
+```
+
+#### Deactivate Virtual Environment
+
+```bash
+deactivate
 ```
