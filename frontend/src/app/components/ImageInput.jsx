@@ -14,6 +14,7 @@ import {
   XCircleIcon,
   FolderOpenIcon,
   ArrowUpTrayIcon,
+  TrashIcon,
 } from "@heroicons/react/24/solid";
 
 const ACTIONS = {
@@ -42,14 +43,12 @@ const initialState = {
 };
 
 const ImageInput = () => {
-  const fileInputRef = useRef(null);
   const webcamRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [toggleState, setToggleState] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [searchClicked, setSearchClicked] = useState(false);
-  const [imagePath, setImagePath] = useState("");
   const [searchInitiated, setSearchInitiated] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [searchError, setError] = useState("");
@@ -61,83 +60,12 @@ const ImageInput = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [data, setData] = useState(null);
+  const [captureIntervalId, setCaptureIntervalId] = useState(null);
 
-  const urlImage = (image) => {
-    return URL.createObjectURL(image);
-  };
-
-  const handleImageUpload = (event) => {
-    fileInputRef.current.click();
-    if (event.target.files && event.target.files[0]) {
-      handleSearch(event.target.files[0]);
-    }
-  };
-
-  const handleSearchClick = (event) => {
-    event.preventDefault();
-    if (selectedImage) {
-      handleSearch(selectedImage);
-      setSearchClicked(true);
-    } else {
-      dispatch({ type: ACTIONS.SET_ERROR, payload: "No image selected." });
-    }
-  };
-
-  const handleFileSelected = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(file);
-    }
-  };
-
-  const handleDeleteImage = () => {
-    setSelectedImage(null);
-  };
-
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-
-    if (file) {
-      // const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(file);
-    }
-  };
-
-  const handleToggle = () => {
-    const newToggleState = !toggleState;
-    setToggleState(newToggleState);
-
-    if (newToggleState) {
-      handleTextureMode();
-    } else {
-      handleColorMode();
-    }
-  };
-
-  const handleColorMode = () => {
-    setSearchInitiated(true);
-  };
-
-  const handleTextureMode = () => {
-    setSearchInitiated(true);
-  };
-
-  const handleOpenCamera = () => {
-    setShowCamera(true);
+  const imageStyle = {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    objectFit: 'contain',
   };
 
   const handleSearch = (imageFile) => {
@@ -168,14 +96,89 @@ const ImageInput = () => {
         return response.json();
       })
       .then((data) => {
-        // Store data in state
         setData(data);
         dispatch({ type: ACTIONS.SET_RESULTS, payload: data });
+        setSearchClicked(true);
       })
       .catch((error) => {
         dispatch({ type: ACTIONS.SET_ERROR, payload: error.message });
       });
   };
+
+
+  const handleSearchClick = (event) => {
+    event.preventDefault();
+    if (selectedImage) {
+      handleSearch(selectedImage);
+      setSearchClicked(true);
+    } else {
+      dispatch({ type: ACTIONS.SET_ERROR, payload: "No image selected." });
+    }
+  };
+
+  const handleFileSelected = (e) => {
+    const file = e.target.files[0];
+    if (file && file instanceof File) { 
+      setSelectedImage(file);
+      setError(""); 
+    } else {
+      setError("The selected item is not a valid file. Please select an image file.");
+      setSelectedImage(null); 
+    }
+  };  
+
+  const handleDeleteImage = () => {
+    setSelectedImage(null);
+    setSearchClicked(false); 
+    setData(null);
+    setShowResult(false); 
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
+
+  const handleToggle = () => {
+    const newToggleState = !toggleState;
+    setToggleState(newToggleState);
+
+    if (newToggleState) {
+      handleTextureMode();
+    } else {
+      handleColorMode();
+    }
+  };
+
+  const handleColorMode = () => {
+    setSearchInitiated(true);
+  };
+
+  const handleTextureMode = () => {
+    setSearchInitiated(true);
+  };
+
+  const handleOpenCamera = () => {
+    setShowCamera(true);
+  };
+
+
 
   const handleDatasetUpload = (e) => {
     const files = e.target.files;
@@ -203,24 +206,52 @@ const ImageInput = () => {
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     if (imageSrc) {
-      handleSearch(imageSrc);
+      // Create an image element from the screenshot
+      const img = new Image();
+      img.onload = () => {
+        // Create a canvas and set its width and height to the image dimensions
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        // Flip the context horizontally
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        // Draw the image onto the context
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Convert the canvas to a Blob
+        canvas.toBlob((blob) => {
+          // Create a file from the Blob
+          const mirroredImageFile = new File([blob], "mirrored_webcam.jpg", { type: 'image/jpeg' });
+          setSelectedImage(mirroredImageFile);
+          handleSearch(mirroredImageFile);
+        }, 'image/jpeg');
+      };
+      // Set the source of the image to the screenshot URL
+      img.src = imageSrc;
+    } else {
+      // Handle the case where no image was captured from the webcam
+      setError('No image captured from the webcam.');
     }
-
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.translate(img.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(img, 0, 0);
-      const mirroredImage = canvas.toDataURL("image/jpeg");
-      setSelectedImage(mirroredImage);
-    };
-    img.src = imageSrc;
   }, [webcamRef, handleSearch]);
+  
+  
 
+  useEffect(() => {
+    if (showCamera && !captureIntervalId) {
+      const newIntervalId = setInterval(() => {
+        capture();
+      }, 5000); 
+      setCaptureIntervalId(newIntervalId);
+    }
+    return () => {
+      if (captureIntervalId) {
+        clearInterval(captureIntervalId);
+        setCaptureIntervalId(null);
+      }
+    };
+  }, [showCamera, captureIntervalId, capture]);
+  
   useEffect(() => {
     if (showCamera) {
       if (timer === 0) {
@@ -236,6 +267,23 @@ const ImageInput = () => {
       setTimer(5);
     }
   }, [showCamera, timer, capture]);
+
+  useEffect(() => {
+    if (!state.loading && searchClicked) {
+      setShowResult(true);
+  
+      setTimeout(() => {
+        if (resultsRef.current) {
+          const yOffset = -20; 
+          const y = resultsRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
+  
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 300);
+    }
+  }, [state.loading, searchClicked]);
+  
+  
 
   return (
     <>
@@ -282,9 +330,10 @@ const ImageInput = () => {
             {selectedImage ? (
               <>
                 <img
-                  src={urlImage(selectedImage)}
+                  src={selectedImage ? URL.createObjectURL(selectedImage) : placeholderImage}
                   alt="Selected"
-                  className="h-40"
+                  style={imageStyle}
+                  className="image-class"
                 />
                 <button
                   onClick={handleDeleteImage}
@@ -347,15 +396,6 @@ const ImageInput = () => {
                 </span>
               </button>
             </div>
-            <div>
-              {searchInitiated ? (
-                // texture
-                <div>Texture</div>
-              ) : (
-                // color
-                <div>Color</div>
-              )}
-            </div>
             <button
               className="bg-[#373737] font-bold text-white px-4 py-2 rounded-md hover:bg-opacity-50 transition-colors duration-100"
               onClick={handleSearchClick}
@@ -393,31 +433,9 @@ const ImageInput = () => {
             </div>
           )}
         </div>
-        <div
-          ref={resultsRef}
-          className={`transition-transform duration-1000 ${
-            showResult ? "translate-y-0" : "translate-y-full"
-          }`}
-          style={{
-            position: "relative",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 10,
-          }}
-        >
+        <div>
           {state.loading && <p>Loading...</p>}
-          {state.error && <p>Error: {state.error}</p>}
-
-          {/* {state.results.map((imageData, index) => (
-            <div key={index} className="result-item">
-              <img
-                src={`data:image/jpeg;base64,${imageData.base64imagedata}`}
-                alt="Result"
-              />
-              <p>Similarity: {imageData.similaritypercentage.toFixed(3)}%</p>
-            </div>
-          ))} */}
+          {!state.loading && state.error && <p>Error: {state.error}</p>}
         </div>
         <div
           ref={resultsRef}
@@ -432,7 +450,7 @@ const ImageInput = () => {
             zIndex: 10,
           }}
         >
-          {searchClicked && data && <Result data={data} />}
+          {!state.loading && searchClicked && data && <Result data={data} inputImage={selectedImage}/>}
         </div>
       </section>
     </>
