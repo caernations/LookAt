@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 
 
-def GLCM(image):
-    height, width = image.shape
+def glcm_func(image):
+    _, width = image.shape
     frameworkMatrix = np.zeros((256, 256), dtype=np.uint64)
     idxI = image[:, : width - 1]
     idxJ = image[:, 1:]
@@ -20,7 +20,7 @@ def metric(image):
     homogeneity = 0
     dissimilarity = 0
     asm = 0
-    glcm = GLCM(image)
+    glcm = glcm_func(image)
 
     i, j = np.indices((256, 256))
 

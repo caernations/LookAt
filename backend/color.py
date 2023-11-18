@@ -1,16 +1,13 @@
 import base64
 import cv2
 import numpy as np
-import time
 
 
 def bgr_to_hsv(bgr):
     bgr = bgr.astype("float32") / 255
     blue, green, red = bgr[..., 0], bgr[..., 1], bgr[..., 2]
     max_color, min_color = np.max(bgr, axis=-1), np.min(bgr, axis=-1)
-    diff = (
-        max_color - min_color + 1e-10
-    )  # add a small constant to avoid division by zero
+    diff = max_color - min_color + 1e-10  # biar ga dibagi 0
     value = max_color
     saturation = np.zeros_like(max_color)
     saturation[max_color != 0] = diff[max_color != 0] / max_color[max_color != 0]
@@ -45,7 +42,6 @@ async def color(dataset, image):
     )
 
     similar_images = []
-    start_time = time.time()
     for dataset_image in dataset:
         dataset_contents = await dataset_image.read()
         dataset_image = cv2.imdecode(
@@ -67,10 +63,6 @@ async def color(dataset, image):
                     "similaritypercentage": similarity,
                 }
             )
-    end_time = time.time()
-    print(
-        f"Time taken to calculate all similarity percentages: {end_time - start_time} seconds"
-    )
     similar_images = sorted(
         similar_images, key=lambda x: x["similaritypercentage"], reverse=True
     )
