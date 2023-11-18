@@ -4,15 +4,24 @@ const Footer = () => {
   return (
     <footer className="bg-[#181818] text-white mt-40 relative">
       <div className="container mx-auto px-12 py-8 z-10 relative">
-        <div className="flex flex-col md:flex-row justify-between">
+        <div className="flex flex-col md:flex-row justify-between items-start lg:space-x-8">
+          <div className="mb-6 md:mb-0 flex-shrink-0">
+            <img
+              src="../../images/logo.png"
+              alt="Logo"
+              className="ml-8 mr-20 h-48 w-48 mb-4"
+            />
+          </div>
           <div className="mb-6 md:mb-0">
-            <h5 className="text-xl font-bold mb-2">Logo</h5>
-            <p className="text-sm">
+            <h1 className="mt-4 mb-4 text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
+              LookAt
+            </h1>
+            <p className="text-sm my-2 lg:my-0 lg:pr-8">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
               metus erat, maximus vitae libero eget, molestie porttitor turpis.
             </p>
           </div>
-          <div className="mb-6 md:mb-0">
+          <div className="mb-6 md:mb-0 lg:flex-grow">
             <h5 className="text-xl font-bold mb-2">Quick Link</h5>
             <ul>
               <li className="mb-1">
@@ -37,26 +46,20 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          <div className="mb-6 md:mb-0">
+          <div className="mb-6 md:mb-0 lg:flex-grow">
             <h5 className="text-xl font-bold mb-2">References</h5>
             <ul>
               <li className="mb-1">
                 <a href="#" className="text-sm hover:underline">
-                  People Saying About Footer
+                  Reference 1
                 </a>
               </li>
               <li className="mb-1">
                 <a href="#" className="text-sm hover:underline">
-                  People Saying About Footer
+                  Reference 2
                 </a>
               </li>
             </ul>
-          </div>
-          <div className="mb-6 md:mb-0">
-            <h5 className="text-xl font-bold mb-2">Contact</h5>
-            <p className="text-sm mb-1">Alamat</p>
-            <p className="text-sm">email</p>
-            <p className="text-sm">nomor hp</p>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-4 z-10 relative">
