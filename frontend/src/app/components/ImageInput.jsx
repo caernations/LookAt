@@ -206,31 +206,21 @@ const ImageInput = () => {
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     if (imageSrc) {
-      // Create an image element from the screenshot
-      const img = new Image();
-      img.onload = () => {
-        // Create a canvas and set its width and height to the image dimensions
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        // Flip the context horizontally
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        // Draw the image onto the context
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        // Convert the canvas to a Blob
-        canvas.toBlob((blob) => {
+      // Create a Blob from the data URL
+      fetch(imageSrc)
+        .then(res => res.blob())
+        .then(blob => {
           // Create a file from the Blob
-          const mirroredImageFile = new File([blob], "mirrored_webcam.jpg", { type: 'image/jpeg' });
-          setSelectedImage(mirroredImageFile);
-          handleSearch(mirroredImageFile);
-        }, 'image/jpeg');
-      };
-      // Set the source of the image to the screenshot URL
-      img.src = imageSrc;
+          const imageFile = new File([blob], "webcam.jpg", { type: 'image/jpeg' });
+          setSelectedImage(imageFile);
+          handleSearch(imageFile);
+        })
+        .catch(error => {
+          // Handle the error here, such as updating the state with an error message
+          setError(`Error capturing the image: ${error.message}`);
+        });
     } else {
-      // Handle the case where no image was captured from the webcam
+      // Handle the case where the webcam did not return an image source
       setError('No image captured from the webcam.');
     }
   }, [webcamRef, handleSearch]);
@@ -301,7 +291,7 @@ const ImageInput = () => {
                   ref={webcamRef}
                   screenshotFormat="image/jpeg"
                   videoConstraints={videoConstraints}
-                  style={mirroredStyle}
+                  mirrored={true}
                   className="webcam p-4 rounded-2xl bg-[#373737] bg-opacity-30"
                 />
                 <button
