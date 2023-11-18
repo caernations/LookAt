@@ -10,45 +10,6 @@ import {
 } from "@heroicons/react/24/solid";
 
 
-
-const imageResults = [
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "100%",
-    alt: "Result",
-  },
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "87%",
-    alt: "Result",
-  },
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "80%",
-    alt: "Result",
-  },
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "1%",
-    alt: "Result",
-  },
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "0%",
-    alt: "Result",
-  },
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "70%",
-    alt: "Result",
-  },
-  {
-    imagePath: "../../images/image5.png",
-    percentage: "100%",
-    alt: "Result",
-  },
-];
-
 const styles = StyleSheet.create({
   page: {
     flexDirection: "row",
@@ -93,10 +54,6 @@ const Result = ({ data }) => {
   const [customFileName, setCustomFileName] = useState('');
 
   const startIndex = (currentPage - 1) * ResultsPerPage;
-  const selectedResults = imageResults.slice(
-    startIndex,
-    startIndex + ResultsPerPage
-  );
 
   const downloadPDF = async () => {
     const doc = <MyDocument images={data} />;
@@ -105,10 +62,6 @@ const Result = ({ data }) => {
     const blob = await asPdf.toBlob();
     saveAs(blob, `${customFileName || 'download'}.pdf`);
   };
-
-  const sortedImageResults = [...imageResults].sort((a, b) => {
-    return parseInt(b.percentage, 10) - parseInt(a.percentage, 10);
-  });
 
   const gridHeight = "422px";
 
