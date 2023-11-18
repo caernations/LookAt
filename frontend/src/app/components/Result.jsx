@@ -99,7 +99,7 @@ const MyDocument = ({ images, similarityData, imageInput }) => (
 );
 
 const ResultsPerPage = 6;
-const Result = ({ data, inputImage }) => {
+const Result = ({ data, inputImage, time }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages =
     data && data.length <= ResultsPerPage
@@ -162,14 +162,14 @@ const Result = ({ data, inputImage }) => {
       <MinusIcon className="h-12 text-black w-12 cursor-pointer hover:text-gray-500" />
       <div>
         <h2 className="text-white text-lg">Result: {data.length}</h2>
-        {/* <p className="text-white text-sm">{runtime}</p> */}
+        <p className="text-white text-sm">{time.toFixed(3)} ms</p>
       </div>
       <input
         type="text"
         value={customFileName}
         onChange={(e) => setCustomFileName(e.target.value)}
         placeholder="Enter file name"
-        className="filename-input text-sm bg-[#373737] bg-opacity-70 rounded-2xl px-2"
+        className="filename-input text-sm bg-[#373737] bg-opacity-70 rounded-2xl px-2 placeholder:italic"
       />
       <FolderArrowDownIcon
         className="h-6 mb-4 cursor-pointer"
@@ -224,9 +224,7 @@ const Result = ({ data, inputImage }) => {
             key={number}
             onClick={() => setCurrentPage(number)}
             className={`pagination-number border-black p-2 h-10 items-center hover:bg-black transition-colors duration-300 w-12 rounded-lg ${
-              currentPage === number
-                ? "bg-black text-white"
-                : "text-white"
+              currentPage === number ? "bg-black text-white" : "text-white"
             }`}
           >
             {number}

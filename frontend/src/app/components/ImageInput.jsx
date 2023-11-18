@@ -61,11 +61,12 @@ const ImageInput = () => {
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [data, setData] = useState(null);
   const [captureIntervalId, setCaptureIntervalId] = useState(null);
+  const [exeTime, setExeTime] = useState(0);
 
   const imageStyle = {
-    maxWidth: '100%',
-    maxHeight: '100%',
-    objectFit: 'contain',
+    maxWidth: "100%",
+    maxHeight: "100%",
+    objectFit: "contain",
   };
 
   const handleSearch = (imageFile) => {
@@ -84,6 +85,7 @@ const ImageInput = () => {
     console.log(formData.getAll("dataset"));
 
     formData.append("choice", toggleState ? "texture" : "color");
+    var startTime = performance.now();
 
     fetch("http://127.0.0.1:8000/upload", {
       method: "POST",
@@ -96,6 +98,9 @@ const ImageInput = () => {
         return response.json();
       })
       .then((data) => {
+        var endTime = performance.now();
+        var runtime = endTime - startTime;
+        setExeTime(runtime);
         setData(data);
         dispatch({ type: ACTIONS.SET_RESULTS, payload: data });
         setSearchClicked(true);
@@ -104,7 +109,6 @@ const ImageInput = () => {
         dispatch({ type: ACTIONS.SET_ERROR, payload: error.message });
       });
   };
-
 
   const handleSearchClick = (event) => {
     event.preventDefault();
@@ -118,20 +122,22 @@ const ImageInput = () => {
 
   const handleFileSelected = (e) => {
     const file = e.target.files[0];
-    if (file && file instanceof File) { 
+    if (file && file instanceof File) {
       setSelectedImage(file);
-      setError(""); 
+      setError("");
     } else {
-      setError("The selected item is not a valid file. Please select an image file.");
-      setSelectedImage(null); 
+      setError(
+        "The selected item is not a valid file. Please select an image file."
+      );
+      setSelectedImage(null);
     }
-  };  
+  };
 
   const handleDeleteImage = () => {
     setSelectedImage(null);
-    setSearchClicked(false); 
+    setSearchClicked(false);
     setData(null);
-    setShowResult(false); 
+    setShowResult(false);
   };
 
   const handleDragEnter = (e) => {
@@ -178,8 +184,6 @@ const ImageInput = () => {
     setShowCamera(true);
   };
 
-
-
   const handleDatasetUpload = (e) => {
     const files = e.target.files;
     if (files.length > 0) {
@@ -208,30 +212,30 @@ const ImageInput = () => {
     if (imageSrc) {
       // Create a Blob from the data URL
       fetch(imageSrc)
-        .then(res => res.blob())
-        .then(blob => {
+        .then((res) => res.blob())
+        .then((blob) => {
           // Create a file from the Blob
-          const imageFile = new File([blob], "webcam.jpg", { type: 'image/jpeg' });
+          const imageFile = new File([blob], "webcam.jpg", {
+            type: "image/jpeg",
+          });
           setSelectedImage(imageFile);
           handleSearch(imageFile);
         })
-        .catch(error => {
+        .catch((error) => {
           // Handle the error here, such as updating the state with an error message
           setError(`Error capturing the image: ${error.message}`);
         });
     } else {
       // Handle the case where the webcam did not return an image source
-      setError('No image captured from the webcam.');
+      setError("No image captured from the webcam.");
     }
   }, [webcamRef, handleSearch]);
-  
-  
 
   useEffect(() => {
     if (showCamera && !captureIntervalId) {
       const newIntervalId = setInterval(() => {
         capture();
-      }, 5000); 
+      }, 5000);
       setCaptureIntervalId(newIntervalId);
     }
     return () => {
@@ -241,7 +245,7 @@ const ImageInput = () => {
       }
     };
   }, [showCamera, captureIntervalId, capture]);
-  
+
   useEffect(() => {
     if (showCamera) {
       if (timer === 0) {
@@ -261,19 +265,20 @@ const ImageInput = () => {
   useEffect(() => {
     if (!state.loading && searchClicked) {
       setShowResult(true);
-  
+
       setTimeout(() => {
         if (resultsRef.current) {
-          const yOffset = -20; 
-          const y = resultsRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
-  
-          window.scrollTo({ top: y, behavior: 'smooth' });
+          const yOffset = -20;
+          const y =
+            resultsRef.current.getBoundingClientRect().top +
+            window.scrollY +
+            yOffset;
+
+          window.scrollTo({ top: y, behavior: "smooth" });
         }
       }, 300);
     }
   }, [state.loading, searchClicked]);
-  
-  
 
   return (
     <>
@@ -320,7 +325,11 @@ const ImageInput = () => {
             {selectedImage ? (
               <>
                 <img
-                  src={selectedImage ? URL.createObjectURL(selectedImage) : placeholderImage}
+                  src={
+                    selectedImage
+                      ? URL.createObjectURL(selectedImage)
+                      : placeholderImage
+                  }
                   alt="Selected"
                   style={imageStyle}
                   className="image-class"
@@ -440,7 +449,9 @@ const ImageInput = () => {
             zIndex: 10,
           }}
         >
-          {!state.loading && searchClicked && data && <Result data={data} inputImage={selectedImage}/>}
+          {!state.loading && searchClicked && data && (
+            <Result data={data} inputImage={selectedImage} time={exeTime} />
+          )}
         </div>
       </section>
     </>
