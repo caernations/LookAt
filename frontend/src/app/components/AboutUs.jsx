@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import {
-  ArrowRightCircleIcon
+  ArrowRightCircleIcon,
+  ArrowLeftCircleIcon,
 } from "@heroicons/react/24/solid";
 
 const usData = [
@@ -21,7 +22,7 @@ const usData = [
   },
   {
     name: "Yasmin Farisah Salma",
-    nim: "#13522140",
+    nim: "13522140",
     email: "yasminfsalma@gmail.com",
     image: "../../images/yasmin32.png",
     alt: "Yasmin",
@@ -37,9 +38,27 @@ const usData = [
 
 const AboutUs = () => {
   const [current, setCurrent] = useState(0);
+  const [isSliding, setIsSliding] = useState(false);
 
   const handleNextClick = () => {
-    setCurrent((prevCurrent) => (prevCurrent + 1) % usData.length);
+    if (!isSliding) {
+      setIsSliding(true);
+      setTimeout(() => {
+        setCurrent((prevCurrent) => (prevCurrent + 1) % usData.length);
+        setIsSliding(false);
+      }, 500);
+    }
+  };
+  const handlePrevClick = () => {
+    if (!isSliding) {
+      setIsSliding(true);
+      setTimeout(() => {
+        setCurrent(
+          (prevCurrent) => (prevCurrent - 1 + usData.length) % usData.length
+        );
+        setIsSliding(false);
+      }, 500);
+    }
   };
 
   return (
@@ -68,21 +87,43 @@ const AboutUs = () => {
             </p>
           </div>
           <div className="md:col-span-4 relative">
-            <img
-              src={usData[current].image}
-              alt={usData[current].alt}
-              className="w-full h-auto object-cover rounded-2xl"
-            />
-            <div className="rounded-2xl absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-900 to-black opacity-0 hover:opacity-90 transition-opacity duration-300 flex items-center justify-start pl-4">
-              <p className="text-white text-xl font-bold">
+            <div className="overflow-hidden relative w-full h-auto">
+              <img
+                src={usData[current].image}
+                alt={usData[current].alt}
+                className={`w-full h-auto object-cover rounded-2xl transition-transform duration-500 ${
+                  isSliding ? "-translate-x-full" : ""
+                }`}
+              />
+            </div>
+            <div className="rounded-2xl absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-900 to-black opacity-0 hover:opacity-90 transition-opacity duration-300 flex flex-col items-end justify-center px-16">
+              <p className="text-white text-xl font-bold text-right">
                 {usData[current].name}
               </p>
+              <p className="text-white text-sm font-light text-right">
+                {usData[current].nim}
+              </p>
+              <p className="text-white text-sm font-light text-right">
+                {usData[current].email}
+              </p>
+              <div className="border-t border-gray-500 w-full my-4"></div>
+              <p className="text-white text-sm font-light text-right">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
+                sit amet dolor eleifend, elementum diam vel, bibendum odio.
+                Morbi eleifend ex sit amet consequat suscipit.
+              </p>
             </div>
+            <button
+              onClick={handlePrevClick}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 text-white p-2 z-10"
+            >
+              <ArrowLeftCircleIcon className="text-white h-10" />
+            </button>
             <button
               onClick={handleNextClick}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 text-white p-2 z-10"
             >
-              <ArrowRightCircleIcon className="text-white h-10"/>
+              <ArrowRightCircleIcon className="text-white h-10" />
             </button>
           </div>
         </div>
