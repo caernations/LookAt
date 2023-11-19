@@ -187,10 +187,13 @@ const ImageInput = () => {
 
   const handleDatasetUpload = (e) => {
     const files = e.target.files;
-    if (files.length > 0) {
+    if (files.length > 999) {
+      alert("Please select a maximum of 999 images.");
+      setSelectedDataset(null); 
+    } else if (files.length > 0) {
       setSelectedDataset(files);
     }
-  };
+  };  
 
   const mirroredStyle = {
     transform: "scaleX(-1)",
