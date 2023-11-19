@@ -3,11 +3,10 @@ import React from "react";
 const Footer = () => {
 
     const scrollToSection = (event) => {
-      event.preventDefault(); // Prevent the default anchor link behavior
-      const href = event.currentTarget.getAttribute('href'); // Get the href attribute of the clicked link
-      const offsetTop = document.querySelector(href).offsetTop; // Get the top offset of the target section
+      event.preventDefault(); 
+      const href = event.currentTarget.getAttribute('href'); 
+      const offsetTop = document.querySelector(href).offsetTop;
   
-      // Scroll to the target section smoothly
       window.scroll({
         top: offsetTop,
         behavior: 'smooth'
@@ -17,15 +16,15 @@ const Footer = () => {
     const scrollToTop = () => {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth' // for smooth scrolling
+        behavior: 'smooth' 
       });
     };
 
   return (
     <footer className="bg-[#181818] text-white mt-40 relative">
       <div
-        // data-aos="fade-down"
-        // data-aos-duration="800"
+        data-aos="fade-down"
+        data-aos-duration="800"
         className="container mx-auto px-12 py-8 z-10 relative"
       >
         <div className="flex flex-col md:flex-row justify-between items-start lg:space-x-8">
