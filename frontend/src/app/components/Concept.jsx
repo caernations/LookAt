@@ -145,7 +145,7 @@ const Concept = () => {
                     className="h-6 w-6 absolute top-2 right-2 cursor-pointer"
                     onClick={() => toggleOverlay(index)}
                   />
-                  <div className="text-white text-sm px-8 rounded-lg relative">
+                  <div className="text-white text-justify leading-5 text-sm px-8 rounded-lg relative">
                     <p>{card.moredesc}</p>{" "}
                   </div>
                 </div>
