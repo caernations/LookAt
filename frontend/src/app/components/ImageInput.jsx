@@ -434,8 +434,15 @@ const ImageInput = () => {
         </div>
         <div>
           {state.loading && (
-            <div className="flex justify-center items-center">
-              <div className="spinner"></div>
+            <div className="overlay">
+              <div className="spinner-container">
+                <div className="spinner"></div>
+                <p className="loading-text font-mono">
+                  Loading<span className="loading-ellipsis"></span>
+                  <br />
+                  It may take a while
+                </p>
+              </div>
             </div>
           )}
           {!state.loading && state.error && <p>Error: {state.error}</p>}
