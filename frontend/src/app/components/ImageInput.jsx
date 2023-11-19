@@ -433,9 +433,14 @@ const ImageInput = () => {
           )}
         </div>
         <div>
-          {state.loading && <p>Loading...</p>}
+          {state.loading && (
+            <div className="flex justify-center items-center">
+              <div className="spinner"></div>
+            </div>
+          )}
           {!state.loading && state.error && <p>Error: {state.error}</p>}
         </div>
+
         <div
           ref={resultsRef}
           className={`transition-transform duration-1000 ${
