@@ -8,15 +8,15 @@ import MenuOverlay from "./MenuOverlay";
 const navLinks = [
   {
     title: "Home",
-    path: "#home",
+    path: "",
   },
   {
-    title: "How It Works",
-    path: "#how-it-works",
+    title: "What Is This",
+    path: "#concept",
   },
   {
     title: "How To Use",
-    path: "#how-to-use",
+    path: "#howtouse",
   },
   {
     title: "About Us",
