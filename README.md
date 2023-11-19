@@ -1,12 +1,27 @@
-# Algeo02-22125
+# LookAt
 
-## Description
+> **Algeo02-22125**
 
-**LookAt**
+> A website that presents an advanced Content-Based Image Retrieval (CBIR) system using linear algebra principles to analyze and compare images. The platform allows for user-uploaded images and datasets, utilizing mathematical algorithms to process and match images according to similarities in color and texture.
 
 <img src="./frontend/public/images/logo.png" alt="drawing" width="200"/>
 
-A website that implement glcm to compare images
+## Table of Contents
+
+- [Technologies Used](#technologies-used)
+- [Pre Requirement](#pre-requirement)
+- [How To Run](#how-to-run)
+- [Screenshots](#screenshots)
+- [Contact](#contact)
+
+## Technologies Used
+
+- python
+- fastapi
+- html
+- css
+- javascript
+- next.js
 
 ## Pre Requirement
 
@@ -19,7 +34,7 @@ Run both of the frontend and backend
 
 Then go to [LookAt](http://localhost:3000/)
 
-## Frontend
+### Frontend
 
 Go to 'frontend' directory
 
@@ -27,7 +42,7 @@ Go to 'frontend' directory
 cd frontend
 ```
 
-### Install Dependencies
+#### Install Dependencies
 
 Install the required dependencies
 
@@ -35,13 +50,13 @@ Install the required dependencies
 npm install
 ```
 
-### Run
+#### Run
 
 ```bash
 npm run dev
 ```
 
-## Backend
+### Backend
 
 Go to 'backend' directory
 
@@ -49,7 +64,7 @@ Go to 'backend' directory
 cd backend
 ```
 
-### Setup Virtual Environtmet
+#### Setup Virtual Environtmet
 
 Install venv
 
@@ -70,7 +85,7 @@ source venv/Scripts/activate  # Windows (bash)
 source venv/bin/activate      # WSL / Linux / Mac
 ```
 
-### Install Dependencies
+#### Install Dependencies
 
 Install the required dependencies
 
@@ -78,14 +93,32 @@ Install the required dependencies
 pip install -r requirements.txt
 ```
 
-### Run
+#### Run
 
 ```bash
 python app.py
 ```
 
-### Deactivate Virtual Environment
+#### Deactivate Virtual Environment
 
 ```bash
 deactivate
 ```
+
+## Screenshots
+
+### Color
+
+![hasil color](./img/hasilSsColor.png)
+
+### Texture
+
+![hasil texture](./img/hasilSsTexture.png)
+
+## Contact
+
+Created by
+
+- [@satriadhikara](https://github.com/satriadhikara)
+- [@caernations](https://github.com/caernations)
+- [@fnathas](https://github.com/fnathas)
