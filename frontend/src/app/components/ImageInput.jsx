@@ -62,6 +62,7 @@ const ImageInput = () => {
   const [data, setData] = useState(null);
   const [captureIntervalId, setCaptureIntervalId] = useState(null);
   const [exeTime, setExeTime] = useState(0);
+  const [totUsedCamera, setTotUsedCamera] = useState(0);
 
   const imageStyle = {
     maxWidth: "100%",
@@ -207,24 +208,25 @@ const ImageInput = () => {
     animationFillMode: "forwards",
   };
 
-const capture = useCallback(() => {
-  const imageSrc = webcamRef.current.getScreenshot();
-  if (imageSrc) {
-    fetch(imageSrc)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const imageFile = new File([blob], "webcam.jpg", { type: "image/jpeg" });
-        setSelectedImage(imageFile); // Set the captured image as the selected image
-        handleSearch(imageFile); // Initiate search with the captured image
-      })
-      .catch((error) => {
-        setError(`Error capturing the image: ${error.message}`);
-      });
-  } else {
-    setError("No image captured from the webcam.");
-  }
-}, [webcamRef, handleSearch]); // Make sure to include handleSearch in the dependencies array if it uses any state variables
-
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (imageSrc) {
+      fetch(imageSrc)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const imageFile = new File([blob], "webcam.jpg", {
+            type: "image/jpeg",
+          });
+          setSelectedImage(imageFile); // Set the captured image as the selected image
+          handleSearch(imageFile); // Initiate search with the captured image
+        })
+        .catch((error) => {
+          setError(`Error capturing the image: ${error.message}`);
+        });
+    } else {
+      setError("No image captured from the webcam.");
+    }
+  }, [webcamRef, handleSearch]); // Make sure to include handleSearch in the dependencies array if it uses any state variables
 
   useEffect(() => {
     if (showCamera && !captureIntervalId) {
@@ -243,9 +245,13 @@ const capture = useCallback(() => {
 
   useEffect(() => {
     if (showCamera) {
+      if (totUsedCamera == 0) {
+        setTimer(3);
+        setTotUsedCamera(totUsedCamera + 1);
+      }
       if (timer === 0) {
         capture();
-        setTimer(5);
+        setTimer(30);
       } else {
         const timerId = setTimeout(() => {
           setTimer((prevTimer) => prevTimer - 1);
@@ -253,10 +259,9 @@ const capture = useCallback(() => {
         return () => clearTimeout(timerId);
       }
     } else {
-      setTimer(5);
+      setTimer(30);
     }
   }, [showCamera, timer, capture]);
-
   useEffect(() => {
     if (!state.loading && searchClicked) {
       setShowResult(true);
