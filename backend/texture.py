@@ -2,6 +2,10 @@ import base64
 import cv2
 import numpy as np
 
+def bgr_to_gray(bgr):
+    blue, green, red = bgr[..., 0], bgr[..., 1], bgr[..., 2]
+    gray = (0.29 * red + 0.587 * green + 0.114 * blue).astype(np.uint8)
+    return gray
 
 def glcm_func(image):
     _, width = image.shape
@@ -54,7 +58,7 @@ def normaliseSymmetricMatrix(matrix):
 async def texture(dataset, image):
     image_contents = await image.read()
     root_image = cv2.imdecode(np.fromstring(image_contents, np.uint8), cv2.IMREAD_COLOR)
-    root_image_g = cv2.cvtColor(root_image, cv2.COLOR_BGR2GRAY)
+    root_image_g = bgr_to_gray(root_image)
 
     similar_images = []
     for dataset_image in dataset:
