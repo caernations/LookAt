@@ -7,18 +7,13 @@ import {
 
 const usData = [
   {
-    name: "Developers",
-    nim: "Panji, Yasmin, Natha",
-    email: "13522125, 13522140, 13522145",
-    image: "../../images/fotbar.jpg",
-    alt: "Developers",
-  },
-  {
     name: "Satriadhikara Panji Yudhistira",
     nim: "13522125",
     email: "satriadhikara@gmail.com",
     image: "../../images/panji32.png",
     alt: "Panji",
+    paragraph:
+      "An Apple fanboy that now really into backend development. He didn't choose backend. Backend chose him",
   },
   {
     name: "Yasmin Farisah Salma",
@@ -26,6 +21,7 @@ const usData = [
     email: "yasminfsalma@gmail.com",
     image: "../../images/yasmin32.png",
     alt: "Yasmin",
+    paragraph: "A dedicated front-end enthusiast and a lifelong learner.",
   },
   {
     name: "Farrel Natha Saskoro",
@@ -33,6 +29,8 @@ const usData = [
     email: "farrel.saskoro@gmail.com",
     image: "../../images/natha32.png",
     alt: "Natha",
+    paragraph:
+      "A not-so-religious boy that try to be and also an enthusiast in algorithm.",
   },
 ];
 
@@ -64,30 +62,48 @@ const AboutUs = () => {
   return (
     <section id="about-us" className="text-white bg-[#181818]">
       <div className="container mx-auto px-20 py-8 max-w-full">
-        <h1 data-aos="fade-up" data-aos-duration="800" className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
+        <h1
+          data-aos="fade-up"
+          data-aos-duration="800"
+          className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black"
+        >
           ABOUT US
         </h1>
-        <div className="mt-16 mx-8 grid grid-cols-1 md:grid-cols-9 gap-4 md:gap-16">
-          <div data-aos="flip-right" data-aos-duration="1200" className="md:col-span-5 p-4">
-            <p className="text-justify bg-[#373737] p-8 rounded-3xl bg-opacity-30">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit
-              amet dolor eleifend, elementum diam vel, bibendum odio. Morbi
-              eleifend ex sit amet consequat suscipit. Nullam accumsan nulla
-              erat, vel egestas tortor consequat vitae. Suspendisse tempor
-              mauris a sapien rhoncus tempor. Nam in bibendum erat. Proin tortor
-              orci, placerat vestibulum congue eget, volutpat aliquet risus.
-              Pellentesque ac mi orci. Duis id varius ligula. Aliquam eu ante
-              sit amet mauris congue laoreet ac eget est. Nam facilisis, mauris
-              ornare finibus mattis, velit odio laoreet odio, non congue augue
-              eros sit amet sem. Etiam congue dictum mauris, eget consectetur
-              libero auctor at. Aenean cursus blandit tellus eu lobortis.
-              Aliquam ornare diam in ornare vulputate. Donec ultrices auctor
-              orci, vitae tincidunt nulla vestibulum non. Cras suscipit lacus
-              sed rutrum facilisis.
-            </p>
+        <div className="mt-16 mx-8 grid grid-cols-1 md:grid-cols-10 gap-4 md:gap-16">
+          <div
+            data-aos="flip-right"
+            data-aos-duration="1200"
+            className="md:col-span-5 p relative"
+          >
+            <div className="overflow-hidden w-full h-auto">
+              <img
+                src="../../images/fotbar.jpg"
+                alt="Developers"
+                className="w-full h-auto object-cover rounded-2xl transition-transform duration-500"
+              />
+            </div>
+            <div className="rounded-2xl absolute inset-0 bg-gradient-to-r from-gray-700 via-gray-900 to-black opacity-0 hover:opacity-90 transition-opacity duration-300 flex flex-col items-end justify-center px-16">
+              <p className="text-white text-xl font-bold text-right">
+                Developers
+              </p>
+              <p className="text-white text-sm font-light text-right">
+                Panji, Yasmin, Natha
+              </p>
+              <p className="text-white text-sm font-light text-right">
+              13522125, 13522140, 13522145
+              </p>
+              <div className="border-t border-gray-500 w-full my-4"></div>
+              <p className="text-white text-sm font-light text-right">
+                Have you seen three pretty bestfriend? Here we are.
+              </p>
+            </div>
           </div>
-          <div data-aos="flip-left" data-aos-duration="1200" className="md:col-span-4 relative">
-            <div className="overflow-hidden relative w-full h-auto">
+          <div
+            data-aos="flip-left"
+            data-aos-duration="1200"
+            className="md:col-span-5 relative"
+          >
+            <div className="overflow-hidden w-full h-auto">
               <img
                 src={usData[current].image}
                 alt={usData[current].alt}
@@ -108,9 +124,7 @@ const AboutUs = () => {
               </p>
               <div className="border-t border-gray-500 w-full my-4"></div>
               <p className="text-white text-sm font-light text-right">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-                sit amet dolor eleifend, elementum diam vel, bibendum odio.
-                Morbi eleifend ex sit amet consequat suscipit.
+                {usData[current].paragraph}
               </p>
             </div>
             <button
