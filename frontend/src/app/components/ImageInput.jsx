@@ -282,7 +282,7 @@ const ImageInput = () => {
 
   return (
     <>
-      <section className="mb-32">
+      <section className="mb-20">
         <div className="flex items-center justify-center">
           {showCamera && (
             <div
