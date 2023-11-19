@@ -7,11 +7,11 @@ import {
 
 const usData = [
   {
-    name: "Foto Bareng",
-    nim: "13522145",
-    email: "farrel.saskoro@gmail.com",
+    name: "Developers",
+    nim: "Panji, Yasmin, Natha",
+    email: "13522125, 13522140, 13522145",
     image: "../../images/fotbar.jpg",
-    alt: "Natha",
+    alt: "Developers",
   },
   {
     name: "Satriadhikara Panji Yudhistira",
