@@ -16,7 +16,7 @@ export default function Home() {
     AOS.init();
   }, []);
   return (
-    <main className="flex min-h-screen flex-col bg-[#181818]">
+    <main id="top-0" className="flex min-h-screen flex-col bg-[#181818]">
       <Navbar />
       <div className="container mt-32 mx-auto py-4">
         <HeroSection />
