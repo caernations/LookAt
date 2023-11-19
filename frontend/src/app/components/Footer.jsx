@@ -3,7 +3,7 @@ import React from "react";
 const Footer = () => {
   return (
     <footer className="bg-[#181818] text-white mt-40 relative">
-      <div className="container mx-auto px-12 py-8 z-10 relative">
+      <div data-aos="fade-down" data-aos-duration="800" className="container mx-auto px-12 py-8 z-10 relative">
         <div className="flex flex-col md:flex-row justify-between items-start lg:space-x-8">
           <div className="mb-6 md:mb-0 flex-shrink-0">
             <img
