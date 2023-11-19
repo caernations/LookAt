@@ -11,7 +11,7 @@ const navLinks = [
     path: "",
   },
   {
-    title: "What Is This",
+    title: "What Is This?",
     path: "#concept",
   },
   {
