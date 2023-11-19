@@ -161,15 +161,15 @@ const Result = ({ data, inputImage, time }) => {
     <div className="bg-[#373737] bg-opacity-70 px-8 pb-8 mt-20 mx-80 rounded-t-3xl flex flex-col items-center justify-center">
       <MinusIcon className="h-12 text-black w-12 cursor-pointer hover:text-gray-500" />
       <div>
-        <h2 className="text-white text-lg">Result: {data.length}</h2>
-        <p className="text-white text-sm">{time.toFixed(3)} ms</p>
+        <h2 className="text-white text-lg text-center">Result: {data.length}</h2>
+        <p className="text-white text-sm text-center mb-2">{time.toFixed(3)} ms</p>
       </div>
       <input
         type="text"
         value={customFileName}
         onChange={(e) => setCustomFileName(e.target.value)}
         placeholder="Enter file name"
-        className="filename-input text-sm bg-[#373737] bg-opacity-70 rounded-2xl px-2 placeholder:italic"
+        className="mb-2 filename-input text-sm bg-[#373737] bg-opacity-70 rounded-2xl px-2 placeholder:italic"
       />
       <FolderArrowDownIcon
         className="h-6 mb-4 cursor-pointer"
