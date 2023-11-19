@@ -10,7 +10,7 @@ const usData = [
     name: "Foto Bareng",
     nim: "13522145",
     email: "farrel.saskoro@gmail.com",
-    image: "../../images/yasmin32.png",
+    image: "../../images/fotbar.jpg",
     alt: "Natha",
   },
   {
@@ -64,11 +64,11 @@ const AboutUs = () => {
   return (
     <section id="about-us" className="text-white bg-[#181818]">
       <div className="container mx-auto px-20 py-8 max-w-full">
-        <h1 className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
+        <h1 data-aos="fade-up" data-aos-duration="800" className="mt-20 text-center text-xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-br from-[#181818] via-[#6e6e6e] to-[#a4a4a4] font-black">
           ABOUT US
         </h1>
         <div className="mt-16 mx-8 grid grid-cols-1 md:grid-cols-9 gap-4 md:gap-16">
-          <div className="md:col-span-5 p-4">
+          <div data-aos="flip-right" data-aos-duration="1200" className="md:col-span-5 p-4">
             <p className="text-justify bg-[#373737] p-8 rounded-3xl bg-opacity-30">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sit
               amet dolor eleifend, elementum diam vel, bibendum odio. Morbi
@@ -86,7 +86,7 @@ const AboutUs = () => {
               sed rutrum facilisis.
             </p>
           </div>
-          <div className="md:col-span-4 relative">
+          <div data-aos="flip-left" data-aos-duration="1200" className="md:col-span-4 relative">
             <div className="overflow-hidden relative w-full h-auto">
               <img
                 src={usData[current].image}
