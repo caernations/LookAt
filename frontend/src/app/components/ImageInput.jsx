@@ -207,29 +207,24 @@ const ImageInput = () => {
     animationFillMode: "forwards",
   };
 
-  const capture = useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (imageSrc) {
-      // Create a Blob from the data URL
-      fetch(imageSrc)
-        .then((res) => res.blob())
-        .then((blob) => {
-          // Create a file from the Blob
-          const imageFile = new File([blob], "webcam.jpg", {
-            type: "image/jpeg",
-          });
-          setSelectedImage(imageFile);
-          handleSearch(imageFile);
-        })
-        .catch((error) => {
-          // Handle the error here, such as updating the state with an error message
-          setError(`Error capturing the image: ${error.message}`);
-        });
-    } else {
-      // Handle the case where the webcam did not return an image source
-      setError("No image captured from the webcam.");
-    }
-  }, [webcamRef, handleSearch]);
+const capture = useCallback(() => {
+  const imageSrc = webcamRef.current.getScreenshot();
+  if (imageSrc) {
+    fetch(imageSrc)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const imageFile = new File([blob], "webcam.jpg", { type: "image/jpeg" });
+        setSelectedImage(imageFile); // Set the captured image as the selected image
+        handleSearch(imageFile); // Initiate search with the captured image
+      })
+      .catch((error) => {
+        setError(`Error capturing the image: ${error.message}`);
+      });
+  } else {
+    setError("No image captured from the webcam.");
+  }
+}, [webcamRef, handleSearch]); // Make sure to include handleSearch in the dependencies array if it uses any state variables
+
 
   useEffect(() => {
     if (showCamera && !captureIntervalId) {
