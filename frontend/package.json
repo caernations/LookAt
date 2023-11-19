@@ -11,12 +11,14 @@
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "@react-pdf/renderer": "^3.1.14",
+    "aos": "^3.0.0-beta.6",
     "file-saver": "^2.0.5",
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
     "react-type-animation": "^3.2.0",
-    "react-webcam": "^7.2.0"
+    "react-webcam": "^7.2.0",
+    "swiper": "^11.0.4"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
