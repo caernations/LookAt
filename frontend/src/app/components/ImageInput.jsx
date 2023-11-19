@@ -282,8 +282,8 @@ const ImageInput = () => {
 
   return (
     <>
-      <section>
-        <div className="flex items-center justify-center h">
+      <section className="mb-32">
+        <div className="flex items-center justify-center">
           {showCamera && (
             <div
               style={slideDownAnimation}
